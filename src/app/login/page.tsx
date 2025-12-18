@@ -1,3 +1,71 @@
+// TEMPORALMENTE DESHABILITADO - No eliminar, se usará más adelante
+'use client'
+
+import { Suspense } from 'react'
+import { useSearchParams } from 'next/navigation'
+import Image from 'next/image'
+import Link from 'next/link'
+
+function LoginContent() {
+  const searchParams = useSearchParams()
+  const returnUrl = searchParams.get('returnUrl') || '/'
+
+  return (
+    <div className="min-h-screen bg-zinc-50 dark:bg-black flex justify-center px-4">
+      <div className="max-w-md w-full">
+        <div className="text-center">
+          <div className="flex justify-center mt-8 mb-8">
+            <Image
+              src="/images/logo-con-lema.png"
+              alt="Daris"
+              width={200}
+              height={100}
+              priority
+            />
+          </div>
+          <h1 className="text-2xl font-bold text-zinc-900 dark:text-zinc-50 mb-4">
+            Inicio de sesión temporalmente deshabilitado
+          </h1>
+          <p className="text-zinc-600 dark:text-zinc-400 mb-8">
+            Por ahora puedes solicitar servicios directamente sin necesidad de iniciar sesión.
+          </p>
+        </div>
+
+        <div className="bg-white dark:bg-zinc-900 rounded-lg p-6 border border-zinc-200 dark:border-zinc-800">
+          <div className="space-y-4">
+            <Link
+              href={returnUrl}
+              className="block w-full px-6 py-3 bg-zinc-900 dark:bg-zinc-50 text-white dark:text-black rounded-lg hover:bg-zinc-800 dark:hover:bg-zinc-200 font-medium text-center"
+            >
+              Continuar sin iniciar sesión
+            </Link>
+            <Link
+              href="/"
+              className="block w-full px-6 py-3 border border-zinc-300 dark:border-zinc-700 text-zinc-900 dark:text-zinc-50 rounded-lg hover:bg-zinc-50 dark:hover:bg-zinc-800 font-medium text-center"
+            >
+              Volver al inicio
+            </Link>
+          </div>
+        </div>
+      </div>
+    </div>
+  )
+}
+
+export default function LoginPage() {
+  return (
+    <Suspense fallback={
+      <div className="min-h-screen bg-zinc-50 dark:bg-black flex items-center justify-center">
+        <div className="text-zinc-600 dark:text-zinc-400">Cargando...</div>
+      </div>
+    }>
+      <LoginContent />
+    </Suspense>
+  )
+}
+
+/* CÓDIGO ORIGINAL - RESTAURAR MÁS ADELANTE
+
 'use client'
 
 import { useState, useEffect } from 'react'
@@ -176,9 +244,6 @@ export default function LoginPage() {
               priority
             />
           </div>
-          {/* <h1 className="text-3xl font-bold text-zinc-900 dark:text-zinc-50">
-            Bienvenido
-          </h1> */}
           <p className="mb-4 text-md font-bold text-back">
             {step === 1 && 'Login con número de WhatsApp'}
             {step === 2 && 'Ingrese el código que recibió por WhatsApp'}
@@ -187,7 +252,6 @@ export default function LoginPage() {
         </div>
 
         <div className="bg-white dark:bg-zinc-900 rounded-lg p-4 border border-zinc-200 dark:border-zinc-800">
-          {/* Step 1: Phone Input */}
           {step === 1 && (
             <div className="space-y-6">
               <PhoneInput
@@ -223,7 +287,6 @@ export default function LoginPage() {
             </div>
           )}
 
-          {/* Step 2: OTP Input */}
           {step === 2 && (
             <div className="space-y-6">
               <OtpInput
@@ -262,7 +325,6 @@ export default function LoginPage() {
             </div>
           )}
 
-          {/* Step 3: Complete Profile */}
           {step === 3 && (
             <div className="space-y-6">
               <div>
@@ -307,3 +369,4 @@ export default function LoginPage() {
     </div>
   )
 }
+*/
