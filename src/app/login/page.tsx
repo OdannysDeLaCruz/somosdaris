@@ -57,7 +57,7 @@ export default function LoginPage() {
       } else {
         setError(data.error || 'Error al enviar el código')
       }
-    } catch (err) {
+    } catch {
       setError('Error de conexión. Intente nuevamente.')
     } finally {
       setLoading(false)
@@ -101,7 +101,7 @@ export default function LoginPage() {
           setRemainingAttempts(data.remainingAttempts)
         }
       }
-    } catch (err) {
+    } catch {
       setError('Error de conexión. Intente nuevamente.')
     } finally {
       setLoading(false)
@@ -139,7 +139,7 @@ export default function LoginPage() {
       } else {
         setError(data.error || 'Error al actualizar el perfil')
       }
-    } catch (err) {
+    } catch {
       setError('Error de conexión. Intente nuevamente.')
     } finally {
       setLoading(false)

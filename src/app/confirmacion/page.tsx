@@ -4,38 +4,12 @@ import { useEffect, useState } from 'react'
 import { useSearchParams, useRouter } from 'next/navigation'
 import Link from 'next/link'
 import { CheckCircle2 } from 'lucide-react'
-import { format } from 'date-fns'
-import { es } from 'date-fns/locale'
-
-interface Reservation {
-  id: string
-  date: string
-  user: {
-    name: string
-    lastname: string
-    phone: string
-  }
-  service: {
-    name: string
-  }
-  package: {
-    description: string
-    hours: number
-    price: number
-  }
-  address: {
-    address: string
-    city: string
-    state: string
-  }
-}
 
 export default function ConfirmacionPage() {
   const searchParams = useSearchParams()
   const router = useRouter()
   const reservationId = searchParams.get('id')
 
-  const [reservation, setReservation] = useState<Reservation | null>(null)
   const [loading, setLoading] = useState(true)
 
   useEffect(() => {
