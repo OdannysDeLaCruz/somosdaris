@@ -56,25 +56,25 @@ export default function ReservarPage() {
     resolver: zodResolver(userInfoSchema),
   })
 
-  // Check authentication
-  useEffect(() => {
-    if (!authLoading && !user) {
-      const currentPath = `/servicios/${serviceId}/reservar`
-      router.push(`/login?returnUrl=${encodeURIComponent(currentPath)}`)
-    }
-  }, [user, authLoading, router, serviceId])
+  // TEMPORALMENTE DESHABILITADO - Check de autenticación
+  // useEffect(() => {
+  //   if (!authLoading && !user) {
+  //     const currentPath = `/servicios/${serviceId}/reservar`
+  //     router.push(`/login?returnUrl=${encodeURIComponent(currentPath)}`)
+  //   }
+  // }, [user, authLoading, router, serviceId])
 
-  // Auto-populate user data if authenticated
-  useEffect(() => {
-    if (user && user.name && user.lastname) {
-      setValue('name', user.name)
-      setValue('lastname', user.lastname)
-      setValue('phone', user.phone)
-      if (user.email) {
-        setValue('email', user.email)
-      }
-    }
-  }, [user, setValue])
+  // TEMPORALMENTE DESHABILITADO - Auto-populate user data
+  // useEffect(() => {
+  //   if (user && user.name && user.lastname) {
+  //     setValue('name', user.name)
+  //     setValue('lastname', user.lastname)
+  //     setValue('phone', user.phone)
+  //     if (user.email) {
+  //       setValue('email', user.email)
+  //     }
+  //   }
+  // }, [user, setValue])
 
   useEffect(() => {
     fetch(`/api/services/${serviceId}`)
