@@ -164,10 +164,10 @@ export default function LoginPage() {
   }
 
   return (
-    <div className="min-h-screen bg-zinc-50 dark:bg-black flex items-center justify-center px-4">
-      <div className="max-w-md w-full space-y-8">
+    <div className="min-h-screen bg-zinc-50 dark:bg-black flex justify-center px-4">
+      <div className="max-w-md w-full">
         <div className="text-center">
-          <div className="flex justify-center mb-6">
+          <div className="flex justify-center mt-8 mb-16">
             <Image
               src="/images/logo-con-lema.png"
               alt="Daris"
@@ -179,8 +179,8 @@ export default function LoginPage() {
           {/* <h1 className="text-3xl font-bold text-zinc-900 dark:text-zinc-50">
             Bienvenido
           </h1> */}
-          <p className="mt-2 text-sm text-zinc-600 dark:text-zinc-400">
-            {step === 1 && ''}
+          <p className="mb-4 text-md font-bold text-back">
+            {step === 1 && 'Login con número de WhatsApp'}
             {step === 2 && 'Ingrese el código que recibió por WhatsApp'}
             {step === 3 && 'Complete su perfil'}
           </p>
