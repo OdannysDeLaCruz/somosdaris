@@ -2,13 +2,13 @@ import Link from 'next/link'
 import { ChevronRight } from 'lucide-react'
 import { prisma } from '@/lib/prisma'
 import Image from 'next/image'
-import { AuthGate } from '@/components/AuthGate'
+// import { AuthGate } from '@/components/AuthGate'
 
 export default async function Home() {
   const services = await prisma.service.findMany()
 
   return (
-    <AuthGate>
+    // <AuthGate>
       <div className="min-h-screen bg-zinc-50 dark:bg-black">
         <main className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-12">
         {/* Header */}
@@ -71,6 +71,6 @@ export default async function Home() {
         )}
       </main>
     </div>
-    </AuthGate>
+    // </AuthGate>
   )
 }
