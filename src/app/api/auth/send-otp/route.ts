@@ -1,14 +1,23 @@
+// TEMPORALMENTE DESHABILITADO - No eliminar, se usará más adelante
 import { NextResponse } from 'next/server'
-import { prisma } from '@/lib/prisma'
-import { generateOTP } from '@/lib/otp'
-import { sendOTP } from '@/lib/whatsapp'
-import { normalizePhone, validatePhone } from '@/lib/phone'
-import { z } from 'zod'
+// import { prisma } from '@/lib/prisma'
+// import { generateOTP } from '@/lib/otp'
+// import { sendOTP } from '@/lib/whatsapp'
+// import { normalizePhone, validatePhone } from '@/lib/phone'
+// import { z } from 'zod'
 
-const sendOtpSchema = z.object({
-  phone: z.string().min(1, 'El teléfono es requerido'),
-})
+// const sendOtpSchema = z.object({
+//   phone: z.string().min(1, 'El teléfono es requerido'),
+// })
 
+export async function POST(request: Request) {
+  return NextResponse.json(
+    { error: 'Autenticación OTP temporalmente deshabilitada' },
+    { status: 503 }
+  )
+}
+
+/* CÓDIGO ORIGINAL - MANTENER PARA USO FUTURO
 export async function POST(request: Request) {
   try {
     const body = await request.json()
@@ -96,3 +105,4 @@ export async function POST(request: Request) {
     )
   }
 }
+*/
