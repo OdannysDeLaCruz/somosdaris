@@ -52,7 +52,7 @@ export default function ReservarPage() {
   const [showAddressForm, setShowAddressForm] = useState(false)
   const [loading, setLoading] = useState(false)
 
-  const { register, handleSubmit, formState: { errors }, getValues, setValue } = useForm<UserInfoData>({
+  const { register, formState: { errors }, getValues, setValue } = useForm<UserInfoData>({
     resolver: zodResolver(userInfoSchema),
   })
 
