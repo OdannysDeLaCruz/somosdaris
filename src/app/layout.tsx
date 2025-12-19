@@ -16,7 +16,7 @@ const geistMono = Geist_Mono({
 });
 
 export const metadata: Metadata = {
-  metadataBase: new URL('https://somosdaris.com'),
+  metadataBase: new URL('https://somosdaris.vercel.app'),
   title: {
     default: "SomosDaris - Servicio de Limpieza en Valledupar",
     template: "%s | SomosDaris"
@@ -28,7 +28,7 @@ export const metadata: Metadata = {
   openGraph: {
     type: "website",
     locale: "es_CO",
-    url: "https://somosdaris.com",
+    url: "https://somosdaris.vercel.app",
     siteName: "SomosDaris",
     title: "SomosDaris - Servicio de Limpieza en Valledupar",
     description: "Servicio profesional de limpieza en Valledupar, Cesar. Reserva fácil y rápido con paquetes por horas.",

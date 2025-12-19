@@ -4,7 +4,7 @@ export function OrganizationSchema() {
     "@type": "LocalBusiness",
     "name": "SomosDaris",
     "description": "Servicio profesional de limpieza en Valledupar, Cesar",
-    "url": "https://somosdaris.com",
+    "url": "https://somosdaris.vercel.app",
     "telephone": "+57-322-637-0671",
     "address": {
       "@type": "PostalAddress",

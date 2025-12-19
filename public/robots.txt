@@ -7,4 +7,4 @@ Disallow: /login
 Disallow: /confirmacion
 
 # Sitemap
-Sitemap: https://somosdaris.com/sitemap.xml
+Sitemap: https://somosdaris.vercel.app/sitemap.xml
