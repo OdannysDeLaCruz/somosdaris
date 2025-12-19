@@ -1,0 +1,10 @@
+# robots.txt para SomosDaris
+User-agent: *
+Allow: /
+Allow: /servicios
+Disallow: /api/
+Disallow: /login
+Disallow: /confirmacion
+
+# Sitemap
+Sitemap: https://somosdaris.com/sitemap.xml

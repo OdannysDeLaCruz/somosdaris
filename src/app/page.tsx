@@ -2,7 +2,17 @@ import Link from 'next/link'
 import { ChevronRight } from 'lucide-react'
 import { prisma } from '@/lib/prisma'
 import Image from 'next/image'
+import type { Metadata } from 'next'
 // import { AuthGate } from '@/components/AuthGate'
+
+export const metadata: Metadata = {
+  title: "Inicio - Servicios de Limpieza",
+  description: "Reserva servicios de limpieza profesional en Valledupar. Paquetes por horas, precios competitivos y servicio garantizado.",
+  openGraph: {
+    title: "SomosDaris - Servicios de Limpieza en Valledupar",
+    description: "Reserva servicios de limpieza profesional en Valledupar. Paquetes por horas, precios competitivos.",
+  }
+}
 
 export default async function Home() {
   const services = await prisma.service.findMany()
