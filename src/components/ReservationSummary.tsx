@@ -12,6 +12,7 @@ interface Package {
 
 interface AddressData {
   address: string
+  neighborhood: string
   label?: string
   city: string
   state: string
@@ -95,7 +96,7 @@ export function ReservationSummary({
             {address.address}
           </div>
           <div className="text-sm text-zinc-600 dark:text-zinc-400">
-            {address.city}, {address.state}, {address.country}
+            {address.neighborhood}, {address.city}, {address.state}, {address.country}
           </div>
           {address.extra && (
             <div className="text-sm text-zinc-500 dark:text-zinc-500 mt-1">

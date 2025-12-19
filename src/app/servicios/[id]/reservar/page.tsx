@@ -294,7 +294,7 @@ export default function ReservarPage() {
 
             <div className="bg-white dark:bg-zinc-900 rounded-lg p-6 border border-zinc-200 dark:border-zinc-800">
               <h3 className="text-lg font-semibold text-zinc-900 dark:text-zinc-50 mb-4">
-                Dirección del servicio
+                ¿Donde será el servicio?
               </h3>
 
               {selectedAddressData ? (
@@ -307,7 +307,7 @@ export default function ReservarPage() {
                     )}
                     <p className="text-zinc-900 dark:text-zinc-50">{selectedAddressData.address}</p>
                     <p className="text-sm text-zinc-600 dark:text-zinc-400">
-                      {selectedAddressData.city}, {selectedAddressData.state}, {selectedAddressData.country}
+                      {selectedAddressData.neighborhood}, {selectedAddressData.city}, {selectedAddressData.state}, {selectedAddressData.country}
                     </p>
                     {selectedAddressData.extra && (
                       <p className="text-sm text-zinc-600 dark:text-zinc-400 mt-1">
@@ -356,7 +356,7 @@ export default function ReservarPage() {
                 disabled={loading}
                 className="flex-1 px-6 py-3 bg-zinc-900 dark:bg-zinc-50 text-white dark:text-black rounded-lg hover:bg-zinc-800 dark:hover:bg-zinc-200 disabled:opacity-50"
               >
-                {loading ? 'Procesando...' : 'Confirmar Reserva'}
+                {loading ? 'Procesando...' : 'Reservar'}
               </button>
             </div>
           </div>
@@ -383,11 +383,12 @@ export default function ReservarPage() {
       <Modal
         isOpen={showAddressForm}
         onClose={() => setShowAddressForm(false)}
-        title="Agregar nueva dirección"
+        title={selectedAddressData ? "Editar dirección" : "Agregar nueva dirección"}
       >
         <AddressForm
           onSubmit={handleAddressCreated}
           onCancel={() => setShowAddressForm(false)}
+          initialData={selectedAddressData}
         />
       </Modal>
     </div>
