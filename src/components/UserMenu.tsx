@@ -137,9 +137,24 @@ export default function UserMenu({ isOpen, onClose }: UserMenuProps) {
             </button>
           </>
         ) : (
-          <div className="px-4 py-2.5 text-gray-500 dark:text-gray-400 text-sm">
-            Inicio de sesión temporalmente deshabilitado
-          </div>
+          <Link
+            href="/login"
+            className="flex items-center gap-3 px-4 py-2.5 hover:bg-gray-100 dark:hover:bg-gray-800 transition-colors text-gray-700 dark:text-gray-200 w-full"
+            onClick={onClose}
+          >
+            <svg
+              className="w-5 h-5"
+              fill="none"
+              strokeLinecap="round"
+              strokeLinejoin="round"
+              strokeWidth="2"
+              viewBox="0 0 24 24"
+              stroke="currentColor"
+            >
+              <path d="M11 16l-4-4m0 0l4-4m-4 4h14m-5 4v1a3 3 0 01-3 3H6a3 3 0 01-3-3V7a3 3 0 013-3h7a3 3 0 013 3v1"></path>
+            </svg>
+            Iniciar Sesión
+          </Link>
         )}
       </nav>
     </div>

@@ -21,10 +21,10 @@ export default function Header() {
     <>
       <header className="fixed top-0 left-0 right-0 z-50 bg-white border-b border-gray-200 dark:bg-gray-900 dark:border-gray-800">
         <div className="flex items-center justify-between px-4 py-3">
-          {/* Hamburger Menu Button */}
+          {/* Hamburger Menu Button - Only visible on desktop */}
           <button
             onClick={() => setIsSidebarOpen(true)}
-            className="p-2 rounded-lg hover:bg-gray-100 dark:hover:bg-gray-800 transition-colors"
+            className="hidden md:block p-2 rounded-lg hover:bg-gray-100 dark:hover:bg-gray-800 transition-colors"
             aria-label="Abrir menú"
           >
             <svg
@@ -43,11 +43,11 @@ export default function Header() {
           {/* User Profile Button */}
           <button
             onClick={() => setIsUserMenuOpen(!isUserMenuOpen)}
-            className="flex items-center gap-2 p-2 rounded-lg hover:bg-gray-100 dark:hover:bg-gray-800 transition-colors"
+            className="flex items-center gap-2 p-2 rounded-lg hover:bg-gray-100 dark:hover:bg-gray-800 transition-colors ml-auto"
             aria-label="Menú de usuario"
           >
             <span className="text-sm font-medium text-gray-700 dark:text-gray-200">
-              {user ? user.name : 'Invitado'}
+              {user ? 'Hola, ' + user.name : 'Invitado'}
             </span>
             <div className="w-8 h-8 rounded-full bg-gray-300 dark:bg-gray-700 flex items-center justify-center">
               <svg
