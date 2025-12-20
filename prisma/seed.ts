@@ -65,6 +65,21 @@ async function main() {
 
   console.log('✅ Cupón de descuento creado:', coupon)
 
+  // Crear cupón de primera reserva (10% de descuento automático)
+  const firstReservationCoupon = await prisma.coupon.create({
+    data: {
+      discountCode: 'PRIMERA_RESERVA',
+      discountAmount: 10,
+      discountType: 'percentage',
+      usageLimit: 999999, // Sin límite efectivo
+      isActive: true,
+      isFirstReservationDiscount: true,
+      expiresAt: new Date('2099-12-31'), // Prácticamente sin expiración
+    },
+  })
+
+  console.log('✅ Cupón de primera reserva creado:', firstReservationCoupon)
+
   console.log('🎉 Seed completado exitosamente!')
 }
 
