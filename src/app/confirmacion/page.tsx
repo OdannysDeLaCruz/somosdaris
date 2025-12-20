@@ -3,7 +3,8 @@
 import { useEffect, useState, Suspense } from 'react'
 import { useSearchParams, useRouter } from 'next/navigation'
 import Link from 'next/link'
-import { CheckCircle2 } from 'lucide-react'
+// import { CheckCircle2 } from 'lucide-react'
+import Image from 'next/image'
 
 function ConfirmacionContent() {
   const searchParams = useSearchParams()
@@ -38,19 +39,20 @@ function ConfirmacionContent() {
       <div className="max-w-2xl mx-auto px-4 sm:px-6 lg:px-8 py-12">
         {/* Success Icon */}
         <div className="text-center mb-8">
-          <div className="inline-flex items-center justify-center w-20 h-20 bg-green-100 dark:bg-green-900 rounded-full mb-4">
-            <CheckCircle2 className="w-12 h-12 text-green-600 dark:text-green-400" />
+          <div className="inline-flex items-center justify-center w-20 h-20 rounded-full mb-4">
+            {/* <CheckCircle2 className="w-12 h-12 text-green-600 dark:text-green-400" /> */}
+            <Image src="/images/reserva.gif" alt="Reserva exitosa" width={80} height={80} unoptimized />
           </div>
-          <h1 className="text-3xl font-bold text-zinc-900 dark:text-zinc-50 mb-2">
+          <h1 className="text-3xl font-bold text-green-600 dark:text-green-400 mb-4">
             ¡Reserva exitosa!
           </h1>
-          <p className="text-lg text-zinc-600 dark:text-zinc-400">
-            Tu reserva ha sido creada correctamente
+          <p className="text-lg text-zinc-600 dark:text-zinc-400 leading-relaxed">
+            Tu reserva ha sido creada correctamente. Te contactaremos pronto para confirmar los detalles.
           </p>
         </div>
 
         {/* Information Card */}
-        <div className="bg-white dark:bg-zinc-900 border border-zinc-200 dark:border-zinc-800 rounded-lg p-6 mb-8">
+        {/* <div className="bg-white dark:bg-zinc-900 border border-zinc-200 dark:border-zinc-800 rounded-lg p-6 mb-8">
           <h2 className="text-xl font-semibold text-zinc-900 dark:text-zinc-50 mb-4">
             Detalles de la reserva
           </h2>
@@ -59,14 +61,14 @@ function ConfirmacionContent() {
             <div className="flex justify-between">
               <span className="text-zinc-600 dark:text-zinc-400">ID de reserva:</span>
               <span className="font-semibold text-zinc-900 dark:text-zinc-50">
-                #{reservationId?.substring(0, 8)}
+                #{reservationId?.substring(0, 8).toUpperCase()}
               </span>
             </div>
           </div>
-        </div>
+        </div> */}
 
         {/* Next Steps */}
-        <div className="bg-blue-50 dark:bg-blue-950 border border-blue-200 dark:border-blue-800 rounded-lg p-6 mb-8">
+        {/* <div className="bg-blue-50 dark:bg-blue-950 border border-blue-200 dark:border-blue-800 rounded-lg p-6 mb-8">
           <h3 className="font-semibold text-blue-900 dark:text-blue-100 mb-2">
             Próximos pasos
           </h3>
@@ -75,10 +77,10 @@ function ConfirmacionContent() {
             <li>Recibirás una llamada o mensaje en el teléfono proporcionado</li>
             <li>El pago se realizará después de recibir el servicio</li>
           </ul>
-        </div>
+        </div> */}
 
         {/* Actions */}
-        <div className="flex flex-col sm:flex-row gap-4">
+        <div className="flex flex-col sm:flex-row gap-4 mt-28">
           <Link
             href="/"
             className="flex-1 px-6 py-3 bg-zinc-900 dark:bg-zinc-50 text-white dark:text-black rounded-lg text-center font-semibold hover:bg-zinc-800 dark:hover:bg-zinc-200"
