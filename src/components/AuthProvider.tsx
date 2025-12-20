@@ -2,14 +2,17 @@
 
 import { createContext, useContext, useState, useEffect, ReactNode } from 'react'
 import { User } from '@prisma/client'
+import { fetchWithAuth } from '@/lib/fetchWithAuth'
+
+interface UserWithReservations extends User {
+  haveReservations?: boolean
+}
 
 interface AuthContextType {
-  user: User | null
-  token: string | null
+  user: UserWithReservations | null
   loading: boolean
   isGuest: boolean
-  setAuth: (user: User, token: string) => void
-  logout: () => void
+  logout: () => Promise<void>
   refreshUser: () => Promise<void>
   setGuestMode: () => void
 }
@@ -17,15 +20,14 @@ interface AuthContextType {
 const AuthContext = createContext<AuthContextType | undefined>(undefined)
 
 export function AuthProvider({ children }: { children: ReactNode }) {
-  const [user, setUser] = useState<User | null>(null)
-  const [token, setToken] = useState<string | null>(null)
+  const [user, setUser] = useState<UserWithReservations | null>(null)
   const [loading, setLoading] = useState(true)
   const [isGuest, setIsGuest] = useState(false)
 
-  // Load user from token on mount
+  // Load user from cookies on mount
   useEffect(() => {
     const loadUser = async () => {
-      const storedToken = localStorage.getItem('auth_token')
+      // Check if guest mode is enabled in localStorage (for backwards compat)
       const guestMode = localStorage.getItem('guest_mode')
 
       if (guestMode === 'true') {
@@ -34,29 +36,20 @@ export function AuthProvider({ children }: { children: ReactNode }) {
         return
       }
 
-      if (!storedToken) {
-        setLoading(false)
-        return
-      }
-
       try {
-        const response = await fetch('/api/auth/me', {
-          headers: {
-            'Authorization': `Bearer ${storedToken}`
-          }
-        })
+        // Fetch user from /api/auth/me (automatically handles token refresh)
+        const response = await fetchWithAuth('/api/auth/me')
 
         if (response.ok) {
           const data = await response.json()
           setUser(data.user)
-          setToken(storedToken)
-        } else {
-          // Invalid token, clear it
-          localStorage.removeItem('auth_token')
+        } else if (response.status === 401) {
+          // Token refresh failed, user needs to login again
+          setUser(null)
         }
       } catch (error) {
         console.error('Error loading user:', error)
-        localStorage.removeItem('auth_token')
+        setUser(null)
       } finally {
         setLoading(false)
       }
@@ -65,60 +58,46 @@ export function AuthProvider({ children }: { children: ReactNode }) {
     loadUser()
   }, [])
 
-  const setAuth = (newUser: User, newToken: string) => {
-    setUser(newUser)
-    setToken(newToken)
-    setIsGuest(false)
-    localStorage.setItem('auth_token', newToken)
-    localStorage.removeItem('guest_mode')
-  }
-
   const setGuestMode = () => {
     setIsGuest(true)
     localStorage.setItem('guest_mode', 'true')
   }
 
   const logout = async () => {
-    if (token) {
-      try {
-        await fetch('/api/auth/logout', {
-          method: 'POST',
-          headers: { 'Content-Type': 'application/json' },
-          body: JSON.stringify({ token })
-        })
-      } catch (error) {
-        console.error('Error logging out:', error)
-      }
+    try {
+      await fetch('/api/auth/logout', {
+        method: 'POST',
+        credentials: 'include',
+      })
+    } catch (error) {
+      console.error('Error logging out:', error)
     }
 
     setUser(null)
-    setToken(null)
     setIsGuest(false)
-    localStorage.removeItem('auth_token')
     localStorage.removeItem('guest_mode')
   }
 
   const refreshUser = async () => {
-    if (!token) return
-
     try {
-      const response = await fetch('/api/auth/me', {
-        headers: {
-          'Authorization': `Bearer ${token}`
-        }
-      })
+      const response = await fetchWithAuth('/api/auth/me')
 
       if (response.ok) {
         const data = await response.json()
         setUser(data.user)
+        setIsGuest(false)
+        localStorage.removeItem('guest_mode')
+      } else {
+        setUser(null)
       }
     } catch (error) {
       console.error('Error refreshing user:', error)
+      setUser(null)
     }
   }
 
   return (
-    <AuthContext.Provider value={{ user, token, loading, isGuest, setAuth, logout, refreshUser, setGuestMode }}>
+    <AuthContext.Provider value={{ user, loading, isGuest, logout, refreshUser, setGuestMode }}>
       {children}
     </AuthContext.Provider>
   )
