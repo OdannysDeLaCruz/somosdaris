@@ -3,7 +3,7 @@ import type { NextRequest } from 'next/server'
 import { getAccessTokenFromCookies } from '@/lib/auth-cookies'
 import { verifyAccessToken } from '@/lib/jwt'
 
-export async function middleware(request: NextRequest) {
+export async function proxy(request: NextRequest) {
   // Only protect POST requests to /api/reservations
   if (request.nextUrl.pathname === '/api/reservations' && request.method === 'POST') {
     // Get access token from cookies
