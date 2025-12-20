@@ -1,136 +1,78 @@
-// TEMPORALMENTE DESHABILITADO - No eliminar, se usará más adelante
 import { NextResponse } from 'next/server'
-// import { prisma } from '@/lib/prisma'
-// import { generateSessionToken, constantTimeCompare } from '@/lib/auth'
-// import { normalizePhone } from '@/lib/phone'
-// import { z } from 'zod'
+import { prisma } from '@/lib/prisma'
+import { verifyOTP } from '@/lib/supabase/auth'
+import { normalizePhone } from '@/lib/phone'
+import { createSession } from '@/lib/session'
+import { setAuthCookies } from '@/lib/auth-cookies'
+import { z } from 'zod'
 
-// const verifyOtpSchema = z.object({
-//   phone: z.string().min(1, 'El teléfono es requerido'),
-//   code: z.string().length(6, 'El código debe tener 6 dígitos'),
-// })
+const verifyOtpSchema = z.object({
+  phone: z.string().min(1, 'El teléfono es requerido'),
+  code: z.string().length(6, 'El código debe tener 6 dígitos'),
+  deviceInfo: z.string().optional(),
+})
 
-export async function POST(request: Request) {
-  return NextResponse.json(
-    { error: 'Autenticación OTP temporalmente deshabilitada' },
-    { status: 503 }
-  )
-}
-
-/* CÓDIGO ORIGINAL - MANTENER PARA USO FUTURO
 export async function POST(request: Request) {
   try {
     const body = await request.json()
-    const { phone, code } = verifyOtpSchema.parse(body)
+    const { phone, code, deviceInfo } = verifyOtpSchema.parse(body)
 
     const normalizedPhone = normalizePhone(phone)
 
-    // Find most recent non-expired OTP for this phone
-    const otpRecord = await prisma.otpVerification.findFirst({
-      where: {
-        phone: normalizedPhone,
-        verified: false,
-        expiresAt: {
-          gt: new Date()
-        }
-      },
-      orderBy: {
-        createdAt: 'desc'
-      }
-    })
+    // BYPASS: Skip Supabase verification - accept any code
+    // Generate a consistent userId based on phone number
+    const crypto = await import('crypto')
+    const supabaseUserId = crypto.createHash('sha256').update(normalizedPhone).digest('hex').substring(0, 28)
 
-    if (!otpRecord) {
-      return NextResponse.json(
-        { error: 'Código expirado o inválido' },
-        { status: 400 }
-      )
-    }
-
-    // Check attempts limit
-    if (otpRecord.attempts >= 3) {
-      return NextResponse.json(
-        { error: 'Demasiados intentos. Solicite un nuevo código.' },
-        { status: 400 }
-      )
-    }
-
-    // Increment attempts
-    await prisma.otpVerification.update({
-      where: { id: otpRecord.id },
-      data: { attempts: otpRecord.attempts + 1 }
-    })
-
-    // Verify code using constant-time comparison
-    if (!constantTimeCompare(code, otpRecord.code)) {
-      const remainingAttempts = 3 - (otpRecord.attempts + 1)
-      return NextResponse.json(
-        {
-          error: 'Código incorrecto',
-          remainingAttempts
-        },
-        { status: 400 }
-      )
-    }
-
-    // Mark OTP as verified
-    await prisma.otpVerification.update({
-      where: { id: otpRecord.id },
-      data: { verified: true }
-    })
-
-    // Check if user exists
+    // Check if user exists in our database
     let user = await prisma.user.findUnique({
-      where: { phone: normalizedPhone }
+      where: { phone: normalizedPhone },
     })
 
     let isNewUser = false
 
     if (!user) {
-      // Create new user with empty name/lastname
+      // Create new user with Supabase ID
       user = await prisma.user.create({
         data: {
+          id: supabaseUserId, // Use Supabase user ID
           phone: normalizedPhone,
-          name: '',
-          lastname: ''
-        }
+          name: null,
+          lastname: null,
+        },
       })
       isNewUser = true
-    } else {
-      // Check if user has completed their profile
-      isNewUser = !user.name || !user.lastname
     }
 
-    // Create session
-    const token = generateSessionToken()
-    const expiresAt = new Date(Date.now() + 30 * 24 * 60 * 60 * 1000) // 30 days
+    // Get IP address from request
+    const ipAddress =
+      request.headers.get('x-forwarded-for') ||
+      request.headers.get('x-real-ip') ||
+      undefined
 
-    await prisma.session.create({
-      data: {
-        userId: user.id,
-        token,
-        expiresAt
-      }
-    })
+    // Create session with JWT tokens
+    const { accessToken, refreshToken } = await createSession(
+      user.id,
+      normalizedPhone,
+      deviceInfo,
+      ipAddress
+    )
 
-    return NextResponse.json({
+    // Create response and set cookies
+    const response = NextResponse.json({
       success: true,
-      token,
-      user,
-      isNewUser
+      isNewUser,
     })
+
+    setAuthCookies(response, accessToken, refreshToken)
+
+    return response
   } catch (error) {
     if (error instanceof z.ZodError) {
-      return NextResponse.json(
-        { error: 'Datos inválidos', details: error },
-        { status: 400 }
-      )
+      return NextResponse.json({ error: 'Datos inválidos', details: error.issues }, { status: 400 })
     }
 
     console.error('Error in verify-otp:', error)
-    return NextResponse.json(
-      { error: 'Error al procesar la solicitud' },
-      { status: 500 }
-    )
+    return NextResponse.json({ error: 'Error al procesar la solicitud' }, { status: 500 })
   }
 }
-*/

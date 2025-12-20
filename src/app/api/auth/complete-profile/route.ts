@@ -4,12 +4,13 @@ import { getAccessTokenFromHeaders } from '@/lib/auth-cookies'
 import { verifyAccessToken } from '@/lib/jwt'
 import { z } from 'zod'
 
-const profileSchema = z.object({
+const completeProfileSchema = z.object({
   name: z.string().min(1, 'El nombre es requerido'),
   lastname: z.string().min(1, 'El apellido es requerido'),
+  email: z.string().email('Email inválido').optional().or(z.literal('')),
 })
 
-export async function PATCH(request: Request) {
+export async function POST(request: Request) {
   try {
     // Get access token from cookies
     const accessToken = getAccessTokenFromHeaders(request)
@@ -25,28 +26,27 @@ export async function PATCH(request: Request) {
       return NextResponse.json({ error: 'Token inválido o expirado' }, { status: 401 })
     }
 
+    // Parse request body
     const body = await request.json()
-    const { name, lastname } = profileSchema.parse(body)
+    const { name, lastname, email } = completeProfileSchema.parse(body)
 
     // Update user profile
-    const updatedUser = await prisma.user.update({
+    await prisma.user.update({
       where: { id: payload.userId },
       data: {
         name,
         lastname,
+        email: email || undefined,
       },
     })
 
-    return NextResponse.json({
-      success: true,
-      user: updatedUser,
-    })
+    return NextResponse.json({ success: true })
   } catch (error) {
     if (error instanceof z.ZodError) {
       return NextResponse.json({ error: 'Datos inválidos', details: error.issues }, { status: 400 })
     }
 
-    console.error('Error in profile update:', error)
+    console.error('Error in complete-profile:', error)
     return NextResponse.json({ error: 'Error al procesar la solicitud' }, { status: 500 })
   }
 }

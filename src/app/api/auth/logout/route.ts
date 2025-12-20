@@ -1,34 +1,24 @@
 import { NextResponse } from 'next/server'
-import { prisma } from '@/lib/prisma'
-import { z } from 'zod'
-
-const logoutSchema = z.object({
-  token: z.string().min(1, 'El token es requerido'),
-})
+import { getAccessTokenFromHeaders, clearAuthCookies } from '@/lib/auth-cookies'
+import { revokeSession } from '@/lib/session'
 
 export async function POST(request: Request) {
   try {
-    const body = await request.json()
-    const { token } = logoutSchema.parse(body)
+    // Get access token from cookies
+    const accessToken = getAccessTokenFromHeaders(request)
 
-    // Delete session
-    await prisma.session.deleteMany({
-      where: { token }
-    })
-
-    return NextResponse.json({ success: true })
-  } catch (error) {
-    if (error instanceof z.ZodError) {
-      return NextResponse.json(
-        { error: 'Datos inválidos', details: error },
-        { status: 400 }
-      )
+    if (accessToken) {
+      // Revoke session in database
+      await revokeSession(accessToken)
     }
 
+    // Create response and clear cookies
+    const response = NextResponse.json({ success: true })
+    clearAuthCookies(response)
+
+    return response
+  } catch (error) {
     console.error('Error in logout:', error)
-    return NextResponse.json(
-      { error: 'Error al procesar la solicitud' },
-      { status: 500 }
-    )
+    return NextResponse.json({ error: 'Error al procesar la solicitud' }, { status: 500 })
   }
 }
