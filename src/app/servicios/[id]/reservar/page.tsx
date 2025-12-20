@@ -10,20 +10,10 @@ import { AddressForm, AddressFormData } from '@/components/AddressForm'
 import { FixedFooter } from '@/components/FixedFooter'
 import { ReservationSummary } from '@/components/ReservationSummary'
 import { Modal } from '@/components/Modal'
-import { useForm } from 'react-hook-form'
-import { zodResolver } from '@hookform/resolvers/zod'
-import { z } from 'zod'
-import Image from 'next/image'
+import { ServiceIncludesModal } from '@/components/ServiceIncludesModal'
 import { useAuth } from '@/components/AuthProvider'
-
-const userInfoSchema = z.object({
-  name: z.string().min(1, 'El nombre es requerido'),
-  lastname: z.string().min(1, 'El apellido es requerido'),
-  phone: z.string().min(1, 'El teléfono es requerido'),
-  email: z.string().email('Email inválido').optional().or(z.literal('')),
-})
-
-type UserInfoData = z.infer<typeof userInfoSchema>
+import { fetchWithAuth } from '@/lib/fetchWithAuth'
+import Image from 'next/image'
 
 interface Package {
   id: string
@@ -38,50 +28,103 @@ interface Service {
   description: string
 }
 
+interface Address {
+  id: string
+  label?: string
+  address: string
+  neighborhood: string
+  city: string
+  state: string
+  country: string
+  extra?: string
+}
+
+const STORAGE_KEY = 'reservation_state'
+
 export default function ReservarPage() {
   const router = useRouter()
   const params = useParams()
   const serviceId = params.id as string
-  const { user, loading: authLoading } = useAuth()
+  const { user } = useAuth()
 
   const [step, setStep] = useState(1)
   const [service, setService] = useState<Service | null>(null)
   const [selectedPackage, setSelectedPackage] = useState<Package | undefined>()
   const [selectedDate, setSelectedDate] = useState<Date | undefined>()
+  const [selectedDateFormated, setSelectedDateFormated] = useState<string | undefined>()
+  const [selectedTime, setSelectedTime] = useState<string | undefined>()
   const [selectedAddressData, setSelectedAddressData] = useState<AddressFormData | undefined>()
+  const [selectedAddressId, setSelectedAddressId] = useState<string | undefined>()
   const [showAddressForm, setShowAddressForm] = useState(false)
+  const [isEditingAddress, setIsEditingAddress] = useState(false)
   const [loading, setLoading] = useState(false)
+  const [email, setEmail] = useState('')
+  const [savedAddresses, setSavedAddresses] = useState<Address[]>([])
+  const [loadingAddresses, setLoadingAddresses] = useState(false)
+  const [showIncludesModal, setShowIncludesModal] = useState(false)
 
-  const { register, formState: { errors }, getValues, setValue } = useForm<UserInfoData>({
-    resolver: zodResolver(userInfoSchema),
-  })
-
-  // TEMPORALMENTE DESHABILITADO - Check de autenticación
-  // useEffect(() => {
-  //   if (!authLoading && !user) {
-  //     const currentPath = `/servicios/${serviceId}/reservar`
-  //     router.push(`/login?returnUrl=${encodeURIComponent(currentPath)}`)
-  //   }
-  // }, [user, authLoading, router, serviceId])
-
-  // TEMPORALMENTE DESHABILITADO - Auto-populate user data
-  // useEffect(() => {
-  //   if (user && user.name && user.lastname) {
-  //     setValue('name', user.name)
-  //     setValue('lastname', user.lastname)
-  //     setValue('phone', user.phone)
-  //     if (user.email) {
-  //       setValue('email', user.email)
-  //     }
-  //   }
-  // }, [user, setValue])
-
+  // Load service data
   useEffect(() => {
     fetch(`/api/services/${serviceId}`)
       .then(res => res.json())
       .then(data => setService(data))
       .catch(error => console.error('Error loading service:', error))
   }, [serviceId])
+
+  // Restore state from sessionStorage when returning from login
+  useEffect(() => {
+    const savedState = sessionStorage.getItem(STORAGE_KEY)
+    if (savedState) {
+      try {
+        const state = JSON.parse(savedState)
+        if (state.serviceId === serviceId) {
+          if (state.selectedPackage) setSelectedPackage(state.selectedPackage)
+          if (state.selectedDate) setSelectedDate(new Date(state.selectedDate))
+          if (state.selectedDateFormated) setSelectedDateFormated(state.selectedDateFormated)
+          if (state.selectedTime) setSelectedTime(state.selectedTime)
+          if (state.step) setStep(state.step)
+        }
+        sessionStorage.removeItem(STORAGE_KEY)
+      } catch (error) {
+        console.error('Error restoring state:', error)
+      }
+    }
+  }, [serviceId])
+
+  // Auto-populate user data if authenticated
+  useEffect(() => {
+    if (user) {
+      setEmail(user.email || '')
+    }
+  }, [user])
+
+  // Load saved addresses when user is authenticated
+  useEffect(() => {
+    if (user) {
+      setLoadingAddresses(true)
+      fetchWithAuth('/api/addresses')
+        .then(res => res.json())
+        .then(addresses => {
+          setSavedAddresses(addresses)
+          // Auto-select first address if exists and no address selected
+          if (addresses.length > 0 && !selectedAddressData) {
+            const firstAddress = addresses[0]
+            setSelectedAddressId(firstAddress.id)
+            setSelectedAddressData({
+              label: firstAddress.label,
+              address: firstAddress.address,
+              neighborhood: firstAddress.neighborhood,
+              city: firstAddress.city,
+              state: firstAddress.state,
+              country: firstAddress.country,
+              extra: firstAddress.extra,
+            })
+          }
+        })
+        .catch(error => console.error('Error loading addresses:', error))
+        .finally(() => setLoadingAddresses(false))
+    }
+  }, [user])
 
   // Scroll to top when step changes
   useEffect(() => {
@@ -96,7 +139,7 @@ export default function ReservarPage() {
   }
 
   const canContinueStep1 = selectedPackage && selectedDate && !isToday(selectedDate)
-  const canContinueStep2 = selectedAddressData && getValues('name') && getValues('lastname') && getValues('phone')
+  const canContinueStep2 = user && selectedAddressId
 
   const handleContinueStep1 = () => {
     if (canContinueStep1) {
@@ -104,10 +147,54 @@ export default function ReservarPage() {
     }
   }
 
-  const handleAddressCreated = (addressData: AddressFormData) => {
-    // Solo guardar la dirección localmente
-    setSelectedAddressData(addressData)
-    setShowAddressForm(false)
+  const handleSelectAddress = (address: Address) => {
+    setSelectedAddressId(address.id)
+    setSelectedAddressData({
+      label: address.label,
+      address: address.address,
+      neighborhood: address.neighborhood,
+      city: address.city,
+      state: address.state,
+      country: address.country,
+      extra: address.extra,
+    })
+  }
+
+  const handleAddressCreated = async (addressData: AddressFormData) => {
+    if (!user) return
+
+    try {
+      setLoading(true)
+
+      // Save address to database
+      const response = await fetchWithAuth('/api/addresses', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify(addressData),
+      })
+
+      if (!response.ok) {
+        const error = await response.json()
+        throw new Error(error.error || 'Error al guardar la dirección')
+      }
+
+      const newAddress: Address = await response.json()
+
+      // Add to saved addresses list
+      setSavedAddresses(prev => [newAddress, ...prev])
+
+      // Select the new address
+      setSelectedAddressId(newAddress.id)
+      setSelectedAddressData(addressData)
+
+      // Close modal
+      setShowAddressForm(false)
+    } catch (error) {
+      console.error('Error creating address:', error)
+      alert(error instanceof Error ? error.message : 'Error al guardar la dirección')
+    } finally {
+      setLoading(false)
+    }
   }
 
   const handleContinueStep2 = () => {
@@ -116,38 +203,62 @@ export default function ReservarPage() {
     }
   }
 
-  const handleReservar = async () => {
-    const userInfo = getValues()
+  const handleGoToLogin = () => {
+    // Save current state to sessionStorage
+    const state = {
+      serviceId,
+      selectedPackage,
+      selectedDate: selectedDate?.toISOString(),
+      selectedDateFormated,
+      selectedTime,
+      step: 2,
+    }
+    sessionStorage.setItem(STORAGE_KEY, JSON.stringify(state))
 
-    if (!selectedPackage || !selectedDate || !selectedAddressData) {
+    // Redirect to login with return URL
+    const currentPath = `/servicios/${serviceId}/reservar`
+    router.push(`/login?returnUrl=${encodeURIComponent(currentPath)}`)
+  }
+
+  const handleReservar = async () => {
+    if (!selectedPackage || !selectedDate || !selectedAddressId || !selectedTime || !user) {
       alert('Faltan datos por completar')
       return
     }
 
+    const reservationDate = `${selectedDateFormated}T${selectedTime}:00-05:00`
+
     try {
       setLoading(true)
-      const response = await fetch('/api/reservations', {
+
+      const response = await fetchWithAuth('/api/reservations', {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({
           type: 'home',
-          date: selectedDate.toISOString(),
+          date: reservationDate,
           serviceId,
           packageId: selectedPackage.id,
-          userInfo,
-          addressData: selectedAddressData,
+          addressId: selectedAddressId,
         }),
       })
 
       if (!response.ok) {
-        throw new Error('Error al crear reserva')
+        const data = await response.json()
+        throw new Error(data.error || 'Error al crear reserva')
       }
 
       const reservation = await response.json()
       router.push(`/confirmacion?id=${reservation.id}`)
-    } catch (error) {
+    } catch (error: unknown) {
       console.error('Error:', error)
-      alert('Error al crear la reserva')
+      if (error instanceof Error) {
+        alert(error.message)
+      } else if (typeof error === 'object' && error !== null && 'message' in error) {
+        alert((error as { message: string }).message)
+      } else {
+        alert('Error al crear la reserva')
+      }
     } finally {
       setLoading(false)
     }
@@ -158,7 +269,7 @@ export default function ReservarPage() {
       <div className="min-h-screen bg-zinc-50 dark:bg-black flex items-center justify-center">
         <div className="text-zinc-600 dark:text-zinc-400">
           <Image
-            src="/images/logo.svg"
+            src="/images/logo-con-lema.png"
             alt="Loading"
             width={200}
             height={200}
@@ -190,34 +301,6 @@ export default function ReservarPage() {
           </button>
         )}
 
-        {/* Steps Indicator */}
-        {/* <div className="flex items-center justify-center mb-12">
-          {[1, 2, 3].map(s => (
-            <div key={s} className="flex items-center">
-              <div
-                className={`w-10 h-10 rounded-full flex items-center justify-center font-semibold ${
-                  s === step
-                    ? 'bg-zinc-900 text-white dark:bg-zinc-50 dark:text-black'
-                    : s < step
-                    ? 'bg-zinc-300 text-zinc-700 dark:bg-zinc-700 dark:text-zinc-300'
-                    : 'bg-zinc-200 text-zinc-500 dark:bg-zinc-800 dark:text-zinc-500'
-                }`}
-              >
-                {s}
-              </div>
-              {s < 3 && (
-                <div
-                  className={`w-16 h-1 mx-2 ${
-                    s < step
-                      ? 'bg-zinc-300 dark:bg-zinc-700'
-                      : 'bg-zinc-200 dark:bg-zinc-800'
-                  }`}
-                />
-              )}
-            </div>
-          ))}
-        </div> */}
-
         {/* Step 1: Package & Date */}
         {step === 1 && (
           <div className="space-y-8">
@@ -225,140 +308,181 @@ export default function ReservarPage() {
               onSelect={setSelectedPackage}
               selectedPackageId={selectedPackage?.id}
             />
+
+            {/* What's Included Button */}
+            <div className="flex justify-center">
+              <button
+                onClick={() => setShowIncludesModal(true)}
+                className="inline-flex items-center gap-2 px-6 py-3 bg-gradient-to-r from-blue-500 to-blue-600 text-white rounded-full hover:from-blue-600 hover:to-blue-700 font-semibold shadow-lg hover:shadow-xl transition-all transform hover:scale-105"
+              >
+                <svg
+                  className="w-5 h-5"
+                  fill="none"
+                  strokeLinecap="round"
+                  strokeLinejoin="round"
+                  strokeWidth="2"
+                  viewBox="0 0 24 24"
+                  stroke="currentColor"
+                >
+                  <path d="M13 16h-1v-4h-1m1-4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z"></path>
+                </svg>
+                ¿Qué incluye el servicio?
+              </button>
+            </div>
+
             <DateTimePicker
-              onSelect={setSelectedDate}
               selectedDate={selectedDate}
+              onSelect={setSelectedDate}
+              onSelectedDateFormated={setSelectedDateFormated}
+              onSelectedTimeFormated={setSelectedTime}
             />
           </div>
         )}
 
-        {/* Step 2: User Info & Address */}
+        {/* Step 2: Authentication Check & Address */}
         {step === 2 && (
           <div className="space-y-8">
-            <div className="bg-white dark:bg-zinc-900 rounded-lg p-6 border border-zinc-200 dark:border-zinc-800">
-              <h3 className="text-lg font-semibold text-zinc-900 dark:text-zinc-50 mb-4">
-                Información del cliente
-              </h3>
-              <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-                <div>
-                  <label className="block text-sm font-medium text-zinc-900 dark:text-zinc-50">
-                    Nombre *
-                  </label>
-                  <input
-                    {...register('name')}
-                    className="mt-1 block w-full px-3 py-2 bg-white dark:bg-zinc-900 border border-zinc-300 dark:border-zinc-700 rounded-lg text-zinc-900 dark:text-zinc-50"
-                  />
-                  {errors.name && (
-                    <p className="mt-1 text-sm text-red-600">{errors.name.message}</p>
-                  )}
-                </div>
-                <div>
-                  <label className="block text-sm font-medium text-zinc-900 dark:text-zinc-50">
-                    Apellido *
-                  </label>
-                  <input
-                    {...register('lastname')}
-                    className="mt-1 block w-full px-3 py-2 bg-white dark:bg-zinc-900 border border-zinc-300 dark:border-zinc-700 rounded-lg text-zinc-900 dark:text-zinc-50"
-                  />
-                  {errors.lastname && (
-                    <p className="mt-1 text-sm text-red-600">{errors.lastname.message}</p>
-                  )}
-                </div>
-                <div>
-                  <label className="block text-sm font-medium text-zinc-900 dark:text-zinc-50">
-                    Teléfono *
-                  </label>
-                  <input
-                    {...register('phone')}
-                    className="mt-1 block w-full px-3 py-2 bg-white dark:bg-zinc-900 border border-zinc-300 dark:border-zinc-700 rounded-lg text-zinc-900 dark:text-zinc-50"
-                  />
-                  {errors.phone && (
-                    <p className="mt-1 text-sm text-red-600">{errors.phone.message}</p>
-                  )}
-                </div>
-                <div>
-                  <label className="block text-sm font-medium text-zinc-900 dark:text-zinc-50">
-                    Email (opcional)
-                  </label>
-                  <input
-                    {...register('email')}
-                    type="email"
-                    className="mt-1 block w-full px-3 py-2 bg-white dark:bg-zinc-900 border border-zinc-300 dark:border-zinc-700 rounded-lg text-zinc-900 dark:text-zinc-50"
-                  />
-                  {errors.email && (
-                    <p className="mt-1 text-sm text-red-600">{errors.email.message}</p>
-                  )}
-                </div>
+            {!user ? (
+              // Not authenticated - show login prompt
+              <div className="bg-white dark:bg-zinc-900 rounded-lg p-6 border border-zinc-200 dark:border-zinc-800">
+                <h3 className="text-lg font-semibold text-zinc-900 dark:text-zinc-50 mb-4">
+                  Inicia sesión para continuar
+                </h3>
+                <p className="text-zinc-600 dark:text-zinc-400 mb-4">
+                  Para reservar un servicio necesitas tener una cuenta. Puedes iniciar sesión o registrarte fácilmente.
+                </p>
+                <button
+                  onClick={handleGoToLogin}
+                  className="w-full px-6 py-3 bg-zinc-900 dark:bg-zinc-50 text-white dark:text-black rounded-lg hover:bg-zinc-800 dark:hover:bg-zinc-200 font-medium"
+                >
+                  Iniciar sesión / Registrarse
+                </button>
               </div>
-            </div>
-
-            <div className="bg-white dark:bg-zinc-900 rounded-lg p-6 border border-zinc-200 dark:border-zinc-800">
-              <h3 className="text-lg font-semibold text-zinc-900 dark:text-zinc-50 mb-4">
-                ¿Donde será el servicio?
-              </h3>
-
-              {selectedAddressData ? (
-                <div className="space-y-2">
-                  <div className="p-4 bg-zinc-50 dark:bg-zinc-800 rounded-lg border border-zinc-200 dark:border-zinc-700">
-                    {selectedAddressData.label && (
-                      <p className="font-semibold text-zinc-900 dark:text-zinc-50 mb-1">
-                        {selectedAddressData.label}
-                      </p>
-                    )}
-                    <p className="text-zinc-900 dark:text-zinc-50">{selectedAddressData.address}</p>
-                    <p className="text-sm text-zinc-600 dark:text-zinc-400">
-                      {selectedAddressData.neighborhood}, {selectedAddressData.city}, {selectedAddressData.state}, {selectedAddressData.country}
+            ) : (
+              // Authenticated - show address and email
+              <>
+                <div className="bg-white dark:bg-zinc-900 rounded-lg p-6 border border-zinc-200 dark:border-zinc-800">
+                  <h3 className="text-lg font-semibold text-zinc-900 dark:text-zinc-50 mb-4">
+                    Tus datos
+                  </h3>
+                  <div className="space-y-2 text-md">
+                    <p className="text-zinc-600 dark:text-zinc-400">
+                      <span className="font-medium text-zinc-900 dark:text-zinc-50">Nombre:</span> {user.name} {user.lastname}
                     </p>
-                    {selectedAddressData.extra && (
-                      <p className="text-sm text-zinc-600 dark:text-zinc-400 mt-1">
-                        {selectedAddressData.extra}
+                    <p className="text-zinc-600 dark:text-zinc-400">
+                      <span className="font-medium text-zinc-900 dark:text-zinc-50">Teléfono:</span> {user.phone}
+                    </p>
+                    {user.email && (
+                      <p className="text-zinc-600 dark:text-zinc-400">
+                        <span className="font-medium text-zinc-900 dark:text-zinc-50">Email:</span> {user.email}
                       </p>
                     )}
                   </div>
-                  <button
-                    onClick={() => setShowAddressForm(true)}
-                    className="w-full p-2 text-sm border border-zinc-300 dark:border-zinc-700 rounded-lg text-zinc-600 dark:text-zinc-400 hover:border-zinc-900 dark:hover:border-zinc-50"
-                  >
-                    Cambiar dirección
-                  </button>
+                  {/* <div className="mt-4">
+                    <label className="block text-sm font-medium text-zinc-900 dark:text-zinc-50 mb-1">
+                      Email (opcional)
+                    </label>
+                    <input
+                      type="email"
+                      value={email}
+                      onChange={(e) => setEmail(e.target.value)}
+                      className="w-full px-3 py-2 bg-white dark:bg-zinc-900 border border-zinc-300 dark:border-zinc-700 rounded-lg text-zinc-900 dark:text-zinc-50"
+                      placeholder="tu@email.com"
+                    />
+                  </div> */}
                 </div>
-              ) : (
-                <button
-                  onClick={() => setShowAddressForm(true)}
-                  className="w-full p-4 border-2 border-dashed border-zinc-300 dark:border-zinc-700 rounded-lg text-zinc-600 dark:text-zinc-400 hover:border-zinc-900 dark:hover:border-zinc-50"
-                >
-                  + Agregar dirección
-                </button>
-              )}
-            </div>
+
+                <div className="bg-white dark:bg-zinc-900 rounded-lg p-6 border border-zinc-200 dark:border-zinc-800">
+                  <h3 className="text-lg font-semibold text-zinc-900 dark:text-zinc-50 mb-4">
+                    ¿Donde será el servicio?
+                  </h3>
+
+                  {loadingAddresses ? (
+                    <div className="text-center py-4 text-zinc-600 dark:text-zinc-400">
+                      Cargando direcciones...
+                    </div>
+                  ) : (
+                    <div className="space-y-3">
+                      {/* Saved Addresses */}
+                      {savedAddresses.length > 0 && (
+                        <div className="space-y-2">
+                          <p className="text-sm font-medium text-zinc-700 dark:text-zinc-300 mb-3">
+                            Selecciona una dirección
+                          </p>
+                          {savedAddresses.map((address) => {
+                            const isSelected = selectedAddressId === address.id
+                            return (
+                              <label
+                                key={address.id}
+                                className={`flex items-start gap-3 w-full text-left p-4 rounded-lg border cursor-pointer transition-all ${
+                                  isSelected
+                                    ? 'border-blue-500 dark:border-blue-400 bg-blue-50 dark:bg-blue-950 ring-2 ring-blue-500 dark:ring-blue-400'
+                                    : 'border-zinc-200 dark:border-zinc-700 hover:border-zinc-400 dark:hover:border-zinc-500 hover:bg-zinc-50 dark:hover:bg-zinc-800'
+                                }`}
+                              >
+                                <input
+                                  type="radio"
+                                  name="address"
+                                  checked={isSelected}
+                                  onChange={() => handleSelectAddress(address)}
+                                  className="mt-1 h-4 w-4 text-blue-600 focus:ring-blue-500"
+                                />
+                                <div className="flex-1">
+                                  {address.label && (
+                                    <p className="font-semibold text-zinc-900 dark:text-zinc-50 mb-1">
+                                      {address.label}
+                                    </p>
+                                  )}
+                                  <p className="text-zinc-900 dark:text-zinc-50 font-medium">{address.address}</p>
+                                  <p className="text-sm text-zinc-600 dark:text-zinc-400">
+                                    {address.neighborhood}, {address.city}, {address.state}
+                                  </p>
+                                  {address.extra && (
+                                    <p className="text-sm text-zinc-600 dark:text-zinc-400 mt-1">
+                                      {address.extra}
+                                    </p>
+                                  )}
+                                </div>
+                              </label>
+                            )
+                          })}
+                        </div>
+                      )}
+
+                      {/* Add New Address Button */}
+                      <button
+                        onClick={() => {
+                          setIsEditingAddress(false)
+                          setShowAddressForm(true)
+                        }}
+                        className="w-full p-4 border-2 border-dashed border-zinc-300 dark:border-zinc-700 rounded-lg text-zinc-600 dark:text-zinc-400 hover:border-zinc-900 dark:hover:border-zinc-50 transition-colors"
+                      >
+                        + Agregar nueva dirección
+                      </button>
+                    </div>
+                  )}
+                </div>
+              </>
+            )}
           </div>
         )}
 
         {/* Step 3: Summary */}
-        {step === 3 && selectedPackage && selectedDate && selectedAddressData && (
+        {step === 3 && selectedPackage && selectedDate && selectedAddressData && user && (
           <div>
             <ReservationSummary
               package={selectedPackage}
               date={selectedDate}
               address={selectedAddressData}
-              userInfo={getValues()}
+              userInfo={{
+                name: user.name!,
+                lastname: user.lastname!,
+                phone: user.phone,
+                email: email || undefined,
+              }}
               serviceName={service.name}
+              applyFirstReservationDiscount={user.haveReservations === false}
             />
-            <div className="mt-8 flex gap-4">
-              <button
-                onClick={() => setStep(2)}
-                className="flex-1 px-6 py-3 border border-zinc-300 dark:border-zinc-700 rounded-lg text-zinc-900 dark:text-zinc-50 hover:bg-zinc-50 dark:hover:bg-zinc-800"
-              >
-                Volver
-              </button>
-              <button
-                onClick={handleReservar}
-                disabled={loading}
-                className="flex-1 px-6 py-3 bg-zinc-900 dark:bg-zinc-50 text-white dark:text-black rounded-lg hover:bg-zinc-800 dark:hover:bg-zinc-200 disabled:opacity-50"
-              >
-                {loading ? 'Procesando...' : 'Reservar'}
-              </button>
-            </div>
           </div>
         )}
       </div>
@@ -369,28 +493,55 @@ export default function ReservarPage() {
           selectedPackage={selectedPackage}
           onContinue={handleContinueStep1}
           disabled={!canContinueStep1}
+          applyFirstReservationDiscount={user?.haveReservations === false}
         />
       )}
-      {step === 2 && (
+      {step === 2 && user && (
         <FixedFooter
           selectedPackage={selectedPackage}
           onContinue={handleContinueStep2}
           disabled={!canContinueStep2}
+          applyFirstReservationDiscount={user.haveReservations === false}
         />
+      )}
+      {step === 3 && selectedPackage && (
+        <div className="fixed bottom-0 left-0 right-0 bg-white dark:bg-zinc-900 border-t border-zinc-200 dark:border-zinc-800 p-4 z-50">
+          <div className="max-w-4xl mx-auto flex gap-4">
+            <button
+              onClick={() => setStep(2)}
+              className="flex-1 px-6 py-3 border border-zinc-300 dark:border-zinc-700 rounded-lg text-zinc-900 dark:text-zinc-50 hover:bg-zinc-50 dark:hover:bg-zinc-800 font-semibold transition-colors"
+            >
+              Volver
+            </button>
+            <button
+              onClick={handleReservar}
+              disabled={loading}
+              className="flex-1 px-6 py-3 bg-zinc-900 dark:bg-zinc-50 text-white dark:text-black rounded-lg hover:bg-zinc-800 dark:hover:bg-zinc-200 disabled:opacity-50 font-semibold transition-colors"
+            >
+              {loading ? 'Procesando...' : 'Reservar'}
+            </button>
+          </div>
+        </div>
       )}
 
       {/* Address Modal */}
       <Modal
         isOpen={showAddressForm}
         onClose={() => setShowAddressForm(false)}
-        title={selectedAddressData ? "Editar dirección" : "Agregar nueva dirección"}
+        title={isEditingAddress ? "Editar dirección" : "Agregar nueva dirección"}
       >
         <AddressForm
           onSubmit={handleAddressCreated}
           onCancel={() => setShowAddressForm(false)}
-          initialData={selectedAddressData}
+          initialData={isEditingAddress ? selectedAddressData : undefined}
         />
       </Modal>
+
+      {/* Service Includes Modal */}
+      <ServiceIncludesModal
+        isOpen={showIncludesModal}
+        onClose={() => setShowIncludesModal(false)}
+      />
     </div>
   )
 }
