@@ -1,18 +1,56 @@
 import type { Metadata } from "next";
-import { Geist, Geist_Mono } from "next/font/google";
+import { Roboto } from "next/font/google";
+import localFont from "next/font/local";
 import "./globals.css";
 import Header from "@/components/Header";
+import BottomNav from "@/components/BottomNav";
 import { AuthProvider } from "@/components/AuthProvider";
 import { OrganizationSchema } from "@/components/StructuredData";
 
-const geistSans = Geist({
-  variable: "--font-geist-sans",
+const roboto = Roboto({
   subsets: ["latin"],
+  weight: "400",
 });
 
-const geistMono = Geist_Mono({
-  variable: "--font-geist-mono",
-  subsets: ["latin"],
+const bricolage = localFont({ 
+  src: [
+    {
+      path: "../../public/fonts/bricolage/BricolageGrotesque-ExtraLight.ttf",
+      weight: "200",
+      style: "normal",
+    },
+    {
+      path: "../../public/fonts/bricolage/BricolageGrotesque-Light.ttf",
+      weight: "300",
+      style: "normal",
+    },
+    {
+      path: "../../public/fonts/bricolage/BricolageGrotesque-Regular.ttf",
+      weight: "400",
+      style: "normal",
+    },
+    {
+      path: "../../public/fonts/bricolage/BricolageGrotesque-Medium.ttf",
+      weight: "500",
+      style: "normal",
+    },
+    {
+      path: "../../public/fonts/bricolage/BricolageGrotesque-SemiBold.ttf",
+      weight: "600",
+      style: "normal",
+    },
+    {
+      path: "../../public/fonts/bricolage/BricolageGrotesque-Bold.ttf",
+      weight: "700",
+      style: "normal",
+    },
+    {
+      path: "../../public/fonts/bricolage/BricolageGrotesque-ExtraBold.ttf",
+      weight: "800",
+      style: "normal",
+    }
+  ],
+  variable: "--font-bricolage",
 });
 
 export const metadata: Metadata = {
@@ -71,12 +109,13 @@ export default function RootLayout({
   return (
     <html lang="es">
       <body
-        className={`${geistSans.variable} ${geistMono.variable} antialiased`}
+        className={`${bricolage.variable} ${roboto.className} antialiased font-bricolage`}
       >
         <OrganizationSchema />
         <AuthProvider>
           <Header />
           {children}
+          <BottomNav />
         </AuthProvider>
       </body>
     </html>

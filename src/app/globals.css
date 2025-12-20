@@ -123,3 +123,11 @@
     @apply bg-background text-foreground;
   }
 }
+
+body {
+  font-family: var(--font-bricolage);
+}
+
+.font-bricolage {
+  font-family: var(--font-bricolage);
+}
