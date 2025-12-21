@@ -32,13 +32,26 @@ export async function POST(request: Request) {
     let isNewUser = false
 
     if (!user) {
-      // Create new user with Supabase ID
+      // Get customer role
+      const customerRole = await prisma.role.findFirst({
+        where: { name: 'customer' },
+      })
+
+      if (!customerRole) {
+        return NextResponse.json(
+          { error: 'Error de configuración: rol de cliente no encontrado' },
+          { status: 500 }
+        )
+      }
+
+      // Create new user with Supabase ID and customer role
       user = await prisma.user.create({
         data: {
           id: supabaseUserId, // Use Supabase user ID
           phone: normalizedPhone,
           name: null,
           lastname: null,
+          roleId: customerRole.id,
         },
       })
       isNewUser = true

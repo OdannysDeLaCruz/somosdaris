@@ -11,19 +11,34 @@ datasource db {
   directUrl = env("DIRECT_URL")
 }
 
+model Role {
+  id   String @id @default(cuid())
+  name String
+  isActive Boolean @default(true)
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+  users User[]
+
+  @@map("roles")
+}
+
 model User {
   id        String   @id @default(cuid())
   name      String?
   lastname  String?
   phone     String   @unique
+  photo     String?
   email     String?
+  roleId    String
   createdAt DateTime @default(now())
   updatedAt DateTime @updatedAt
 
-  addresses    Address[]
-  reservations Reservation[]
-  payments     Payment[]
-  sessions     Session[]
+  addresses            Address[]
+  customerReservations Reservation[] @relation("CustomerReservations")
+  allyReservations     Reservation[] @relation("AllyReservations")
+  payments             Payment[]
+  sessions             Session[]
+  role                 Role          @relation(fields: [roleId], references: [id])
 
   @@map("users")
 }
@@ -85,14 +100,16 @@ model Reservation {
   addressId String
   packageId String
   couponId  String?
+  allyId    String?
   createdAt DateTime          @default(now())
   updatedAt DateTime          @updatedAt
 
-  user     User      @relation(fields: [userId], references: [id], onDelete: Cascade)
+  user     User      @relation(fields: [userId], references: [id], onDelete: Cascade, name: "CustomerReservations")
   service  Service   @relation(fields: [serviceId], references: [id])
   address  Address   @relation(fields: [addressId], references: [id])
   package  Package   @relation(fields: [packageId], references: [id])
   coupon   Coupon?   @relation(fields: [couponId], references: [id])
+  ally     User?     @relation(fields: [allyId], references: [id], onDelete: SetNull, name: "AllyReservations")
   payments Payment[]
 
   @@map("reservations")
