@@ -82,10 +82,10 @@ function ConfirmacionContent() {
         {/* Actions */}
         <div className="flex flex-col sm:flex-row gap-4 mt-28">
           <Link
-            href="/"
+            href="/historial"
             className="flex-1 px-6 py-3 bg-zinc-900 dark:bg-zinc-50 text-white dark:text-black rounded-lg text-center font-semibold hover:bg-zinc-800 dark:hover:bg-zinc-200"
           >
-            Volver al inicio
+            Ver mis reservas
           </Link>
           <Link
             href="/"
