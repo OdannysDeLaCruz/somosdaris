@@ -91,7 +91,7 @@ export async function PATCH(
     }
 
     // Build update data object
-    const updateData: any = {}
+    const updateData: Record<string, unknown> = {}
     if (validatedData.status !== undefined) {
       updateData.status = validatedData.status
     }
@@ -126,7 +126,7 @@ export async function PATCH(
   } catch (error) {
     if (error instanceof z.ZodError) {
       return NextResponse.json(
-        { error: 'Datos inválidos', details: error.errors },
+        { error: 'Datos inválidos', details: error.issues },
         { status: 400 }
       )
     }

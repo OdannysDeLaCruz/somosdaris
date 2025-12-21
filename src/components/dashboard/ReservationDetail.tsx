@@ -5,6 +5,7 @@ import { format } from 'date-fns'
 import { es } from 'date-fns/locale'
 import { ArrowLeft } from 'lucide-react'
 import Link from 'next/link'
+import { Decimal } from '@prisma/client/runtime/library'
 
 type ReservationStatus = 'pending' | 'completed' | 'cancelled'
 type ReservationType = 'home' | 'office'
@@ -49,17 +50,17 @@ interface ReservationDetailProps {
       id: string
       description: string
       hours: number
-      price: number
+      price: Decimal
     }
     coupon: {
       id: string
       discountCode: string
-      discountAmount: number
+      discountAmount: Decimal
       discountType: 'percentage' | 'fixed'
     } | null
     payments: Array<{
       id: string
-      amount: number
+      amount: Decimal
       paymentMethod: string
       createdAt: Date
     }>

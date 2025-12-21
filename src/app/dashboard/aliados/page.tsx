@@ -12,7 +12,7 @@ async function getAllies() {
       role: true,
       _count: {
         select: {
-          reservations: true,
+          allyReservations: true,
         },
       },
     },

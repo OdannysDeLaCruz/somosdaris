@@ -15,7 +15,7 @@ async function getCustomers() {
       addresses: true,
       _count: {
         select: {
-          reservations: true,
+          customerReservations: true,
         },
       },
     },
@@ -56,7 +56,7 @@ export default async function ClientesPage() {
         <div className="bg-white rounded-lg shadow-sm border border-gray-200 p-4">
           <p className="text-sm text-gray-600">Total Reservas</p>
           <p className="text-2xl font-bold text-blue-600 mt-1">
-            {customers.reduce((acc, customer) => acc + customer._count.reservations, 0)}
+            {customers.reduce((acc, customer) => acc + customer._count.customerReservations, 0)}
           </p>
         </div>
         <div className="bg-white rounded-lg shadow-sm border border-gray-200 p-4">
@@ -65,7 +65,7 @@ export default async function ClientesPage() {
             {customers.length > 0
               ? (
                   customers.reduce(
-                    (acc, customer) => acc + customer._count.reservations,
+                    (acc, customer) => acc + customer._count.customerReservations,
                     0
                   ) / customers.length
                 ).toFixed(1)
@@ -155,7 +155,7 @@ export default async function ClientesPage() {
                     <td className="px-6 py-4">
                       <div className="text-sm">
                         <span className="inline-flex items-center justify-center w-8 h-8 rounded-full bg-blue-100 text-blue-600 font-semibold">
-                          {customer._count.reservations}
+                          {customer._count.customerReservations}
                         </span>
                       </div>
                     </td>

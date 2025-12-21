@@ -10,7 +10,7 @@ import { User, Role } from '@prisma/client'
 type AllyWithDetails = User & {
   role: Role
   _count: {
-    reservations: number
+    allyReservations: number
   }
 }
 
@@ -73,7 +73,7 @@ export default function AlliesContent({ initialAllies }: AlliesContentProps) {
           <div className="bg-white rounded-lg shadow-sm border border-gray-200 p-4">
             <p className="text-sm text-gray-600">Total Servicios</p>
             <p className="text-2xl font-bold text-blue-600 mt-1">
-              {allies.reduce((acc, ally) => acc + ally._count.reservations, 0)}
+              {allies.reduce((acc, ally) => acc + ally._count.allyReservations, 0)}
             </p>
           </div>
         </div>
@@ -140,7 +140,7 @@ export default function AlliesContent({ initialAllies }: AlliesContentProps) {
                       Servicios realizados
                     </span>
                     <span className="text-lg font-bold text-blue-600">
-                      {ally._count.reservations}
+                      {ally._count.allyReservations}
                     </span>
                   </div>
                 </div>
