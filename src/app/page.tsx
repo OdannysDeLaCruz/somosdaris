@@ -17,7 +17,7 @@ export const metadata: Metadata = {
 
 export default async function Home() {
   const services = await prisma.service.findMany()
-
+  console.log('Services:', services);
   return (
     <AuthRedirect>
       {/* First Reservation Banner */}
@@ -53,7 +53,7 @@ export default async function Home() {
                 <div className="flex items-center justify-center p-2">
                   {service.image && (
                     <Image
-                      src="/images/limpieza.gif"
+                      src={service.image}
                       alt={service.name}
                       width={100}
                       height={100}
