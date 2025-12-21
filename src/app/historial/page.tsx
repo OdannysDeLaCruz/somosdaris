@@ -1,6 +1,7 @@
 'use client'
 
 import { useEffect, useState } from 'react'
+import Image from 'next/image'
 import { useAuth } from '@/components/AuthProvider'
 import LoginPrompt from '@/components/LoginPrompt'
 import EmptyState from '@/components/EmptyState'
@@ -31,6 +32,13 @@ interface Reservation {
     discountCode: string
     discountAmount: number
     discountType: string
+  } | null
+  ally?: {
+    id: string
+    name: string
+    lastname: string
+    phone: string
+    photo: string | null
   } | null
   createdAt: string
 }
@@ -253,6 +261,33 @@ export default function HistorialPage() {
                   {reservation.address.city}
                 </span>
               </div>
+              {reservation.ally && (
+                <div className="flex items-center gap-3 mt-3 pt-3 border-t border-gray-200 dark:border-gray-700">
+                  {reservation.ally.photo ? (
+                    <div className="w-10 h-10 rounded-full overflow-hidden shadow-sm">
+                      <Image
+                        src={reservation.ally.photo}
+                        alt={`${reservation.ally.name} ${reservation.ally.lastname}`}
+                        width={40}
+                        height={40}
+                        className="w-full h-full object-cover"
+                      />
+                    </div>
+                  ) : (
+                    <div className="w-10 h-10 rounded-full bg-gradient-to-br from-blue-400 to-blue-600 flex items-center justify-center text-white font-semibold shadow-sm">
+                      {reservation.ally.name.charAt(0)}{reservation.ally.lastname.charAt(0)}
+                    </div>
+                  )}
+                  <div className="flex-1">
+                    <p className="text-xs text-gray-500 dark:text-gray-400">
+                      Profesional asignado
+                    </p>
+                    <p className="font-medium text-gray-900 dark:text-gray-100">
+                      {reservation.ally.name} {reservation.ally.lastname}
+                    </p>
+                  </div>
+                </div>
+              )}
             </div>
           </div>
         ))}
