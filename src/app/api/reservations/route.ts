@@ -142,6 +142,15 @@ export async function GET(request: Request) {
         address: true,
         package: true,
         coupon: true,
+        ally: {
+          select: {
+            id: true,
+            name: true,
+            lastname: true,
+            phone: true,
+            photo: true,
+          },
+        },
       },
       orderBy: {
         createdAt: 'desc',
