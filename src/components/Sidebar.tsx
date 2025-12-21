@@ -2,6 +2,7 @@
 
 import Link from 'next/link'
 import { useEffect } from 'react'
+import { Home, ClipboardList, Heart, MapPin } from 'lucide-react'
 
 interface SidebarProps {
   isOpen: boolean
@@ -75,78 +76,38 @@ export default function Sidebar({ isOpen, onClose }: SidebarProps) {
                   className="flex items-center gap-3 px-4 py-3 rounded-lg hover:bg-gray-100 dark:hover:bg-gray-800 transition-colors text-gray-700 dark:text-gray-200"
                   onClick={onClose}
                 >
-                  <svg
-                    className="w-5 h-5"
-                    fill="none"
-                    strokeLinecap="round"
-                    strokeLinejoin="round"
-                    strokeWidth="2"
-                    viewBox="0 0 24 24"
-                    stroke="currentColor"
-                  >
-                    <path d="M3 12l2-2m0 0l7-7 7 7M5 10v10a1 1 0 001 1h3m10-11l2 2m-2-2v10a1 1 0 01-1 1h-3m-6 0a1 1 0 001-1v-4a1 1 0 011-1h2a1 1 0 011 1v4a1 1 0 001 1m-6 0h6"></path>
-                  </svg>
-                  Inicio
+                  <Home className="w-5 h-5" />
+                  Home
                 </Link>
               </li>
               <li>
                 <Link
-                  href="/servicios"
+                  href="/historial"
                   className="flex items-center gap-3 px-4 py-3 rounded-lg hover:bg-gray-100 dark:hover:bg-gray-800 transition-colors text-gray-700 dark:text-gray-200"
                   onClick={onClose}
                 >
-                  <svg
-                    className="w-5 h-5"
-                    fill="none"
-                    strokeLinecap="round"
-                    strokeLinejoin="round"
-                    strokeWidth="2"
-                    viewBox="0 0 24 24"
-                    stroke="currentColor"
-                  >
-                    <path d="M9 5H7a2 2 0 00-2 2v12a2 2 0 002 2h10a2 2 0 002-2V7a2 2 0 00-2-2h-2M9 5a2 2 0 002 2h2a2 2 0 002-2M9 5a2 2 0 012-2h2a2 2 0 012 2"></path>
-                  </svg>
-                  Servicios
+                  <ClipboardList className="w-5 h-5" />
+                  Historial
                 </Link>
               </li>
               <li>
                 <Link
-                  href="/reservas"
+                  href="/favoritos"
                   className="flex items-center gap-3 px-4 py-3 rounded-lg hover:bg-gray-100 dark:hover:bg-gray-800 transition-colors text-gray-700 dark:text-gray-200"
                   onClick={onClose}
                 >
-                  <svg
-                    className="w-5 h-5"
-                    fill="none"
-                    strokeLinecap="round"
-                    strokeLinejoin="round"
-                    strokeWidth="2"
-                    viewBox="0 0 24 24"
-                    stroke="currentColor"
-                  >
-                    <path d="M8 7V3m8 4V3m-9 8h10M5 21h14a2 2 0 002-2V7a2 2 0 00-2-2H5a2 2 0 00-2 2v12a2 2 0 002 2z"></path>
-                  </svg>
-                  Mis Reservas
+                  <Heart className="w-5 h-5" />
+                  Favoritos
                 </Link>
               </li>
               <li>
                 <Link
-                  href="/contacto"
+                  href="/direcciones"
                   className="flex items-center gap-3 px-4 py-3 rounded-lg hover:bg-gray-100 dark:hover:bg-gray-800 transition-colors text-gray-700 dark:text-gray-200"
                   onClick={onClose}
                 >
-                  <svg
-                    className="w-5 h-5"
-                    fill="none"
-                    strokeLinecap="round"
-                    strokeLinejoin="round"
-                    strokeWidth="2"
-                    viewBox="0 0 24 24"
-                    stroke="currentColor"
-                  >
-                    <path d="M3 8l7.89 5.26a2 2 0 002.22 0L21 8M5 19h14a2 2 0 002-2V7a2 2 0 00-2-2H5a2 2 0 00-2 2v10a2 2 0 002 2z"></path>
-                  </svg>
-                  Contacto
+                  <MapPin className="w-5 h-5" />
+                  Direcciones
                 </Link>
               </li>
             </ul>
