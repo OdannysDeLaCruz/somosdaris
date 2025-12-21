@@ -19,6 +19,16 @@ export async function GET(request: Request) {
       return NextResponse.json({ error: 'Sesión inválida o expirada' }, { status: 401 })
     }
 
+    // Get user with role information
+    const userWithRole = await prisma.user.findUnique({
+      where: { id: user.id },
+      include: { role: true },
+    })
+
+    if (!userWithRole) {
+      return NextResponse.json({ error: 'Usuario no encontrado' }, { status: 404 })
+    }
+
     // Check if user has any reservations
     const reservationCount = await prisma.reservation.count({
       where: { userId: user.id },
@@ -26,7 +36,7 @@ export async function GET(request: Request) {
 
     return NextResponse.json({
       user: {
-        ...user,
+        ...userWithRole,
         haveReservations: reservationCount > 0,
       }
     })

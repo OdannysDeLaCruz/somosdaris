@@ -1,5 +1,5 @@
 import { NextResponse } from 'next/server'
-import { getRefreshTokenFromHeaders } from '@/lib/auth-cookies'
+import { getRefreshTokenFromHeaders, clearAuthCookies } from '@/lib/auth-cookies'
 import { refreshAccessToken } from '@/lib/session'
 import { setAuthCookies } from '@/lib/auth-cookies'
 
@@ -16,10 +16,13 @@ export async function POST(request: Request) {
     const tokens = await refreshAccessToken(refreshToken)
 
     if (!tokens) {
-      return NextResponse.json(
+      // Clear invalid cookies
+      const response = NextResponse.json(
         { error: 'Sesión inválida o expirada' },
         { status: 401 }
       )
+      clearAuthCookies(response)
+      return response
     }
 
     // Create response and set new cookies

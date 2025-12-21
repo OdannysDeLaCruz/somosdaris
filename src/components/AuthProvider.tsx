@@ -1,10 +1,11 @@
 'use client'
 
 import { createContext, useContext, useState, useEffect, ReactNode } from 'react'
-import { User } from '@prisma/client'
+import { User, Role } from '@prisma/client'
 import { fetchWithAuth } from '@/lib/fetchWithAuth'
 
 interface UserWithReservations extends User {
+  role: Role
   haveReservations?: boolean
 }
 

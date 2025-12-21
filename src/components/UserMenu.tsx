@@ -113,6 +113,30 @@ export default function UserMenu({ isOpen, onClose }: UserMenuProps) {
               </svg>
               Configuración
             </Link>
+            {/* Admin Dashboard Link - Only visible for admins */}
+            {user.role?.name === 'admin' && (
+              <>
+                <div className="border-t border-gray-200 dark:border-gray-800 my-2"></div>
+                <Link
+                  href="/dashboard"
+                  className="flex items-center gap-3 px-4 py-2.5 hover:bg-blue-50 dark:hover:bg-blue-900/20 transition-colors text-blue-600 dark:text-blue-400"
+                  onClick={onClose}
+                >
+                  <svg
+                    className="w-5 h-5"
+                    fill="none"
+                    strokeLinecap="round"
+                    strokeLinejoin="round"
+                    strokeWidth="2"
+                    viewBox="0 0 24 24"
+                    stroke="currentColor"
+                  >
+                    <path d="M9 17V7m0 10a2 2 0 01-2 2H5a2 2 0 01-2-2V7a2 2 0 012-2h2a2 2 0 012 2m0 10a2 2 0 002 2h2a2 2 0 002-2M9 7a2 2 0 012-2h2a2 2 0 012 2m0 10V7m0 10a2 2 0 002 2h2a2 2 0 002-2V7a2 2 0 00-2-2h-2a2 2 0 00-2 2"></path>
+                  </svg>
+                  Administrador
+                </Link>
+              </>
+            )}
             <div className="border-t border-gray-200 dark:border-gray-800 my-2"></div>
             <button
               className="flex items-center gap-3 px-4 py-2.5 hover:bg-gray-100 dark:hover:bg-gray-800 transition-colors text-red-600 dark:text-red-400 w-full"

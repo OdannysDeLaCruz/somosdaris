@@ -64,7 +64,10 @@ export async function verifyRefreshToken(token: string): Promise<RefreshTokenPay
     })
     return payload as RefreshTokenPayload
   } catch (error) {
-    console.error('Error verifying refresh token:', error)
+    // Only log in development, and only the message (not full stack trace)
+    if (process.env.NODE_ENV === 'development') {
+      console.log('Refresh token verification failed (expected if cookie is old/invalid)')
+    }
     return null
   }
 }
