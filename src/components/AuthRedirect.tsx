@@ -24,7 +24,7 @@ export function AuthRedirect({ children }: AuthRedirectProps) {
   if (loading) {
     return (
       <div className="min-h-screen bg-zinc-50 dark:bg-black flex items-center justify-center">
-        <Image src="/images/logo-con-lema.png" alt="Loading" width={200} height={200} />
+        <Image src="/images/logo-azul.png" alt="Loading" width={200} height={200} loading="eager" style={{ width: 'auto', height: 'auto' }} />
       </div>
     )
   }

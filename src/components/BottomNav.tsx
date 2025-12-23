@@ -8,7 +8,11 @@ export default function BottomNav() {
   const pathname = usePathname()
 
   // Don't show bottom nav on these pages
-  const hideBottomNav = pathname?.includes('/reservar') || pathname?.includes('/confirmacion') || pathname?.includes('/login') || pathname?.includes('/perfil') || pathname?.includes('/dashboard')
+  const nonVisiblePages = ['/reservar', '/confirmacion', '/login', '/dashboard'];
+  const hideBottomNav = nonVisiblePages.includes(pathname || '');
+
+
+  // const hideBottomNav = pathname?.includes('/reservar') || pathname?.includes('/confirmacion') || pathname?.includes('/login') || pathname?.includes('/perfil') || pathname?.includes('/dashboard')
 
   if (hideBottomNav) return null
 

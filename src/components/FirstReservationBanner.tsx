@@ -56,24 +56,27 @@ export default function FirstReservationBanner() {
         {/* Close button */}
         <button
           onClick={handleDismiss}
-          className="absolute top-4 right-4 text-zinc-400 hover:text-zinc-600 dark:hover:text-zinc-200 transition-colors"
+          className="absolute top-4 right-4 text-black hover:text-zinc-600 dark:hover:text-zinc-200 transition-colors"
           aria-label="Cerrar"
         >
           <X size={24} />
         </button>
 
-        <div className="p-8 text-center space-y-6">
+        <div className="p-5 text-center space-y-6">
 
           {modalType === 'guest' ? (
             <>
               {/* Image */}
-              <div className="w-full h-48 rounded-xl flex items-center justify-center">
+              <div className="w-full h-40 rounded-xl flex items-center justify-center">
                 <Image
-                  src="/images/obsequio.gif"
+                  src="/images/obsequio-cerrado.png"
                   alt="Obsequio de 10% en tu primera reserva"
-                  width={180}
+                  width={300}
                   height={180}
-                  className="object-contain"
+                  loading="eager"
+                  className="object-contain mb-8"
+                  fetchPriority='high'
+                  style={{ width: '320px', height: 'auto' }}
                 />
               </div>
               {/* Guest Modal Content */}
@@ -93,41 +96,44 @@ export default function FirstReservationBanner() {
               </div>
 
               {/* Buttons */}
-              <div className="space-y-3">
-                <button
-                  onClick={handleGoToLogin}
-                  className="w-full px-6 py-3 bg-blue-600 hover:bg-blue-700 text-white rounded-lg font-semibold transition-colors"
-                >
-                  Quiero mi obsequio
-                </button>
+              <div className="flex flex-row gap-3 items-center">
                 <button
                   onClick={handleDismiss}
-                  className="w-full px-6 py-3 border border-zinc-300 dark:border-zinc-700 text-zinc-700 dark:text-zinc-300 rounded-lg font-semibold hover:bg-zinc-50 dark:hover:bg-zinc-800 transition-colors"
+                  className="w-full px-4 py-3 border border-zinc-300 dark:border-zinc-700 text-zinc-700 dark:text-zinc-300 rounded-lg font-semibold hover:bg-zinc-50 dark:hover:bg-zinc-800 transition-colors"
                 >
                   Cerrar
+                </button>
+                <button
+                  onClick={handleGoToLogin}
+                  className="w-full px-5 py-3 bg-blue-600 hover:bg-blue-700 text-white rounded-lg font-semibold transition-colors text-nowrap"
+                >
+                  ¡Lo quiero!
                 </button>
               </div>
             </>
           ) : (
             <>
               {/* Image */}
-              <div className="w-full h-48 rounded-xl flex items-center justify-center">
+              <div className="w-full h-40 rounded-xl flex items-center justify-center">
                 <Image
-                  src="/images/obsequio-recibido.gif"
+                  src="/images/obsequio-recibido.png"
                   alt="Obsequio de 10% en tu primera reserva"
-                  width={180}
+                  width={300}
                   height={180}
-                  className="object-contain"
+                  fetchPriority='high'
+                  loading="eager"
+                  className="object-contain mb-8"
+                  style={{ width: '320px', height: 'auto' }}
                 />
               </div>
 
               {/* Registered Modal Content */}
               <div className="space-y-3">
                 <h2 className="text-2xl font-bold text-black dark:text-green-400">
-                  Obsequio activado
+                  Se activó tu obsequio
                 </h2>
                 <p className="text-lg text-zinc-800 dark:text-zinc-200">
-                  Ya cuentas con tu obsequio del <span className="font-bold text-green-600 dark:text-green-400">10%</span>, lo verás reflejado en tu primer servicio.
+                  Tienes un obsequio del <span className="font-bold text-green-600 dark:text-green-400">10%</span>, se aplicará automáticamente en tu primer servicio.
                 </p>
                 <p className="text-base text-zinc-600 dark:text-zinc-400">
                   Estará disponible hasta que decidas usarlo.
@@ -135,18 +141,18 @@ export default function FirstReservationBanner() {
               </div>
 
               {/* Buttons */}
-              <div className="space-y-3">
-                <button
-                  onClick={handleDismiss}
-                  className="w-full px-6 py-3 bg-green-600 hover:bg-green-700 text-white rounded-lg font-semibold transition-colors"
-                >
-                  Reservar servicio
-                </button>
+              <div className="flex flex-row gap-3 items-center">
                 <button
                   onClick={handleDismiss}
                   className="w-full px-6 py-3 border border-zinc-300 dark:border-zinc-700 text-zinc-700 dark:text-zinc-300 rounded-lg font-semibold hover:bg-zinc-50 dark:hover:bg-zinc-800 transition-colors"
                 >
-                  Cerrar
+                  OK
+                </button>
+                <button
+                  onClick={handleDismiss}
+                  className="w-full px-6 py-3 bg-green-600 hover:bg-green-700 text-white rounded-lg font-semibold transition-colors"
+                >
+                  ¡Usarlo!
                 </button>
               </div>
             </>
