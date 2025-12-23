@@ -4,6 +4,7 @@ import { useState } from 'react'
 import { usePathname } from 'next/navigation'
 import Sidebar from './Sidebar'
 import UserMenu from './UserMenu'
+import FirstReservationTag from './FirstReservationTag'
 import { useAuth } from './AuthProvider'
 
 export default function Header() {
@@ -21,24 +22,30 @@ export default function Header() {
     <>
       <header className="fixed top-0 left-0 right-0 z-50 bg-white border-b border-gray-200 dark:bg-gray-900 dark:border-gray-800">
         <div className="flex items-center justify-between px-4 py-3">
-          {/* Hamburger Menu Button - Only visible on desktop */}
-          <button
-            onClick={() => setIsSidebarOpen(true)}
-            className="hidden md:block p-2 rounded-lg hover:bg-gray-100 dark:hover:bg-gray-800 transition-colors"
-            aria-label="Abrir menú"
-          >
-            <svg
-              className="w-6 h-6 text-gray-700 dark:text-gray-200"
-              fill="none"
-              strokeLinecap="round"
-              strokeLinejoin="round"
-              strokeWidth="2"
-              viewBox="0 0 24 24"
-              stroke="currentColor"
+          {/* Left side: Hamburger Menu + Discount Tag */}
+          <div className="flex items-center gap-3">
+            {/* Hamburger Menu Button - Only visible on desktop */}
+            <button
+              onClick={() => setIsSidebarOpen(true)}
+              className="hidden md:block p-2 rounded-lg hover:bg-gray-100 dark:hover:bg-gray-800 transition-colors"
+              aria-label="Abrir menú"
             >
-              <path d="M4 6h16M4 12h16M4 18h16"></path>
-            </svg>
-          </button>
+              <svg
+                className="w-6 h-6 text-gray-700 dark:text-gray-200"
+                fill="none"
+                strokeLinecap="round"
+                strokeLinejoin="round"
+                strokeWidth="2"
+                viewBox="0 0 24 24"
+                stroke="currentColor"
+              >
+                <path d="M4 6h16M4 12h16M4 18h16"></path>
+              </svg>
+            </button>
+
+            {/* First Reservation Discount Tag */}
+            <FirstReservationTag />
+          </div>
 
           {/* User Profile Button */}
           <button
