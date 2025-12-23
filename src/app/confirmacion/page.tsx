@@ -2,16 +2,18 @@
 
 import { useEffect, useState, Suspense } from 'react'
 import { useSearchParams, useRouter } from 'next/navigation'
-import Link from 'next/link'
 // import { CheckCircle2 } from 'lucide-react'
 import Image from 'next/image'
+import { useAuth } from '@/components/AuthProvider'
 
 function ConfirmacionContent() {
   const searchParams = useSearchParams()
   const router = useRouter()
+  const { refreshUser } = useAuth()
   const reservationId = searchParams.get('id')
 
   const [loading, setLoading] = useState(true)
+  const [navigating, setNavigating] = useState(false)
 
   useEffect(() => {
     if (!reservationId) {
@@ -25,6 +27,22 @@ function ConfirmacionContent() {
       setLoading(false)
     }, 1000)
   }, [reservationId, router])
+
+  const handleNavigate = async (path: string) => {
+    setNavigating(true)
+    try {
+      // Refresh user data to update haveReservations status
+      await refreshUser()
+      // Navigate to the desired path
+      router.push(path)
+    } catch (error) {
+      console.error('Error refreshing user:', error)
+      // Navigate anyway even if refresh fails
+      router.push(path)
+    } finally {
+      setNavigating(false)
+    }
+  }
 
   if (loading) {
     return (
@@ -41,7 +59,7 @@ function ConfirmacionContent() {
         <div className="text-center mb-8">
           <div className="inline-flex items-center justify-center w-20 h-20 rounded-full mb-4">
             {/* <CheckCircle2 className="w-12 h-12 text-green-600 dark:text-green-400" /> */}
-            <Image src="/images/reserva.gif" alt="Reserva exitosa" width={80} height={80} unoptimized />
+            <Image src="/images/reserva.png" alt="Reserva exitosa" width={80} height={80} style={{ width: 'auto', height: 'auto' }} unoptimized />
           </div>
           <h1 className="text-3xl font-bold text-green-600 dark:text-green-400 mb-4">
             ¡Reserva exitosa!
@@ -81,18 +99,20 @@ function ConfirmacionContent() {
 
         {/* Actions */}
         <div className="flex flex-col sm:flex-row gap-4 mt-28">
-          <Link
-            href="/historial"
-            className="flex-1 px-6 py-3 bg-zinc-900 dark:bg-zinc-50 text-white dark:text-black rounded-lg text-center font-semibold hover:bg-zinc-800 dark:hover:bg-zinc-200"
+          <button
+            onClick={() => handleNavigate('/historial')}
+            disabled={navigating}
+            className="flex-1 px-6 py-3 bg-zinc-900 dark:bg-zinc-50 text-white dark:text-black rounded-lg text-center font-semibold hover:bg-zinc-800 dark:hover:bg-zinc-200 disabled:opacity-50 disabled:cursor-not-allowed"
           >
-            Ver mis reservas
-          </Link>
-          <Link
-            href="/"
-            className="flex-1 px-6 py-3 border border-zinc-300 dark:border-zinc-700 rounded-lg text-center text-zinc-900 dark:text-zinc-50 hover:bg-zinc-50 dark:hover:bg-zinc-800"
+            {navigating ? 'Cargando...' : 'Ver mis reservas'}
+          </button>
+          <button
+            onClick={() => handleNavigate('/')}
+            disabled={navigating}
+            className="flex-1 px-6 py-3 border border-zinc-300 dark:border-zinc-700 rounded-lg text-center text-zinc-900 dark:text-zinc-50 hover:bg-zinc-50 dark:hover:bg-zinc-800 disabled:opacity-50 disabled:cursor-not-allowed"
           >
-            Hacer otra reserva
-          </Link>
+            {navigating ? 'Cargando...' : 'Hacer otra reserva'}
+          </button>
         </div>
 
         {/* Contact Info */}
