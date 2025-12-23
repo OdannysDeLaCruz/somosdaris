@@ -14,6 +14,7 @@ import { ServiceIncludesModal } from '@/components/ServiceIncludesModal'
 import { useAuth } from '@/components/AuthProvider'
 import { fetchWithAuth } from '@/lib/fetchWithAuth'
 import Image from 'next/image'
+import FirstReservationTag from '@/components/FirstReservationTag'
 
 interface Package {
   id: string
@@ -269,10 +270,12 @@ export default function ReservarPage() {
       <div className="min-h-screen bg-zinc-50 dark:bg-black flex items-center justify-center">
         <div className="text-zinc-600 dark:text-zinc-400">
           <Image
-            src="/images/logo-con-lema.png"
+            src="/images/logo-azul.png"
             alt="Loading"
             width={200}
             height={200}
+            loading="eager"
+            style={{ width: 'auto', height: 'auto' }}
           />
         </div>
       </div>
@@ -281,29 +284,32 @@ export default function ReservarPage() {
 
   return (
     <div className="min-h-screen bg-zinc-50 dark:bg-black pb-32">
-      <div className="max-w-4xl mx-auto px-4 sm:px-6 lg:px-8 py-4 pt-8">
+      <div className="max-w-4xl mx-auto px-4 sm:px-6 lg:px-8 py-4">
         {/* Back Button */}
         {step === 1 ? (
           <Link
             href="/"
-            className="text-2xl font-bold inline-flex items-center gap-2 text-black transition-colors mb-16"
+            className="text-xl font-bold inline-flex items-center gap-2 text-black transition-colors mb-6"
           >
-            <ArrowLeft className="w-10 h-10 mr-2 bg-blue-100 p-2 rounded-full" />
+            <ArrowLeft className="w-9 h-9 mr-2 bg-blue-100 p-2 rounded-full" />
             Reserva tu servicio
           </Link>
         ) : (
           <button
             onClick={() => setStep(step - 1)}
-            className="text-2xl font-bold inline-flex items-center gap-2 text-black transition-colors mb-16"
+            className="text-xl font-bold inline-flex items-center gap-2 text-black transition-colors mb-6"
           >
-            <ArrowLeft className="w-10 h-10 mr-2 bg-blue-100 p-2 rounded-full" />
+            <ArrowLeft className="w-9 h-9 mr-2 bg-blue-100 p-2 rounded-full" />
             Volver
           </button>
         )}
 
+        <FirstReservationTag />
+
         {/* Step 1: Package & Date */}
         {step === 1 && (
-          <div className="space-y-8">
+          <div className="space-y-8 mt-4">
+
             <PackageSelector
               onSelect={setSelectedPackage}
               selectedPackageId={selectedPackage?.id}
@@ -341,10 +347,10 @@ export default function ReservarPage() {
 
         {/* Step 2: Authentication Check & Address */}
         {step === 2 && (
-          <div className="space-y-8">
+          <div className="space-y-8 mt-4">
             {!user ? (
               // Not authenticated - show login prompt
-              <div className="bg-white dark:bg-zinc-900 rounded-lg p-6 border border-zinc-200 dark:border-zinc-800">
+              <div className="bg-white dark:bg-zinc-900 rounded-lg p-3 border border-zinc-200 dark:border-zinc-800">
                 <h3 className="text-lg font-semibold text-zinc-900 dark:text-zinc-50 mb-4">
                   Inicia sesión para continuar
                 </h3>
@@ -361,11 +367,8 @@ export default function ReservarPage() {
             ) : (
               // Authenticated - show address and email
               <>
-                <div className="bg-white dark:bg-zinc-900 rounded-lg p-6 border border-zinc-200 dark:border-zinc-800">
-                  <h3 className="text-lg font-semibold text-zinc-900 dark:text-zinc-50 mb-4">
-                    Tus datos
-                  </h3>
-                  <div className="space-y-2 text-md">
+                <div className="bg-white dark:bg-zinc-900 rounded-lg p-3 border border-zinc-200 dark:border-zinc-800 mb-4">
+                  <div className="space-y-1 text-md">
                     <p className="text-zinc-600 dark:text-zinc-400">
                       <span className="font-medium text-zinc-900 dark:text-zinc-50">Nombre:</span> {user.name} {user.lastname}
                     </p>
@@ -378,21 +381,9 @@ export default function ReservarPage() {
                       </p>
                     )}
                   </div>
-                  {/* <div className="mt-4">
-                    <label className="block text-sm font-medium text-zinc-900 dark:text-zinc-50 mb-1">
-                      Email (opcional)
-                    </label>
-                    <input
-                      type="email"
-                      value={email}
-                      onChange={(e) => setEmail(e.target.value)}
-                      className="w-full px-3 py-2 bg-white dark:bg-zinc-900 border border-zinc-300 dark:border-zinc-700 rounded-lg text-zinc-900 dark:text-zinc-50"
-                      placeholder="tu@email.com"
-                    />
-                  </div> */}
                 </div>
 
-                <div className="bg-white dark:bg-zinc-900 rounded-lg p-6 border border-zinc-200 dark:border-zinc-800">
+                <div className="bg-white dark:bg-zinc-900 rounded-lg p-3 border border-zinc-200 dark:border-zinc-800">
                   <h3 className="text-lg font-semibold text-zinc-900 dark:text-zinc-50 mb-4">
                     ¿Donde será el servicio?
                   </h3>
@@ -405,7 +396,7 @@ export default function ReservarPage() {
                     <div className="space-y-3">
                       {/* Saved Addresses */}
                       {savedAddresses.length > 0 && (
-                        <div className="space-y-2">
+                        <div className="space-y-2 mb-4">
                           <p className="text-sm font-medium text-zinc-700 dark:text-zinc-300 mb-3">
                             Selecciona una dirección
                           </p>
@@ -414,7 +405,7 @@ export default function ReservarPage() {
                             return (
                               <label
                                 key={address.id}
-                                className={`flex items-start gap-3 w-full text-left p-4 rounded-lg border cursor-pointer transition-all ${
+                                className={`flex items-start gap-3 w-full text-left p-2 rounded-lg border cursor-pointer transition-all ${
                                   isSelected
                                     ? 'border-blue-500 dark:border-blue-400 bg-blue-50 dark:bg-blue-950 ring-2 ring-blue-500 dark:ring-blue-400'
                                     : 'border-zinc-200 dark:border-zinc-700 hover:border-zinc-400 dark:hover:border-zinc-500 hover:bg-zinc-50 dark:hover:bg-zinc-800'
@@ -429,11 +420,10 @@ export default function ReservarPage() {
                                 />
                                 <div className="flex-1">
                                   {address.label && (
-                                    <p className="font-semibold text-zinc-900 dark:text-zinc-50 mb-1">
-                                      {address.label}
+                                    <p className="text-zinc-900 dark:text-zinc-50">
+                                      {address.label}, {address.address}
                                     </p>
                                   )}
-                                  <p className="text-zinc-900 dark:text-zinc-50 font-medium">{address.address}</p>
                                   <p className="text-sm text-zinc-600 dark:text-zinc-400">
                                     {address.neighborhood}, {address.city}, {address.state}
                                   </p>
@@ -455,7 +445,7 @@ export default function ReservarPage() {
                           setIsEditingAddress(false)
                           setShowAddressForm(true)
                         }}
-                        className="w-full p-4 border-2 border-dashed border-zinc-300 dark:border-zinc-700 rounded-lg text-zinc-600 dark:text-zinc-400 hover:border-zinc-900 dark:hover:border-zinc-50 transition-colors"
+                        className="w-full p-2 border border-dashed border-blue-400 dark:border-blue-700 rounded-lg text-blue-600 dark:text-blue-400 hover:border-blue-500 dark:hover:border-blue-500 transition-colors bg-blue-100 hover:bg-blue-300"
                       >
                         + Agregar nueva dirección
                       </button>
@@ -469,7 +459,7 @@ export default function ReservarPage() {
 
         {/* Step 3: Summary */}
         {step === 3 && selectedPackage && selectedDate && selectedAddressData && user && (
-          <div>
+          <div className='mt-4'>
             <ReservationSummary
               package={selectedPackage}
               date={selectedDate}

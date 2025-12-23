@@ -271,6 +271,7 @@ export default function HistorialPage() {
                         width={40}
                         height={40}
                         className="w-full h-full object-cover"
+                        style={{ width: 'auto', height: 'auto' }}
                       />
                     </div>
                   ) : (
