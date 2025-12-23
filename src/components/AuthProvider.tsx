@@ -1,6 +1,7 @@
 'use client'
 
 import { createContext, useContext, useState, useEffect, ReactNode } from 'react'
+import { useRouter, usePathname } from 'next/navigation'
 import { User, Role } from '@prisma/client'
 import { fetchWithAuth } from '@/lib/fetchWithAuth'
 
@@ -21,6 +22,8 @@ interface AuthContextType {
 const AuthContext = createContext<AuthContextType | undefined>(undefined)
 
 export function AuthProvider({ children }: { children: ReactNode }) {
+  const router = useRouter()
+  const pathname = usePathname()
   const [user, setUser] = useState<UserWithReservations | null>(null)
   const [loading, setLoading] = useState(true)
   const [isGuest, setIsGuest] = useState(false)
@@ -58,6 +61,25 @@ export function AuthProvider({ children }: { children: ReactNode }) {
 
     loadUser()
   }, [])
+
+  // Redirect to complete profile if user is authenticated but profile is incomplete
+  useEffect(() => {
+    // Skip if still loading or already on login page
+    if (loading || pathname === '/login') {
+      return
+    }
+
+    // Skip if user is in guest mode
+    if (isGuest) {
+      return
+    }
+
+    // If user is authenticated but doesn't have complete profile (name or lastname missing)
+    if (user && (!user.name || !user.lastname)) {
+      // Redirect to login page with current URL as returnUrl
+      router.push(`/login?returnUrl=${encodeURIComponent(pathname)}`)
+    }
+  }, [user, loading, isGuest, pathname, router])
 
   const setGuestMode = () => {
     setIsGuest(true)

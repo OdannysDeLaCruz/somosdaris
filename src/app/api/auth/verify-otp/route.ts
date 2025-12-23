@@ -71,10 +71,14 @@ export async function POST(request: Request) {
       ipAddress
     )
 
+    // Check if user has complete profile (name and lastname)
+    const hasCompleteProfile = !!(user.name && user.lastname)
+
     // Create response and set cookies
     const response = NextResponse.json({
       success: true,
       isNewUser,
+      hasCompleteProfile,
     })
 
     setAuthCookies(response, accessToken, refreshToken)
