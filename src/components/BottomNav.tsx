@@ -6,13 +6,11 @@ import { Home, ClipboardList, Heart, MapPin } from 'lucide-react'
 
 export default function BottomNav() {
   const pathname = usePathname()
-
+console.log(pathname)
   // Don't show bottom nav on these pages
-  const nonVisiblePages = ['/reservar', '/confirmacion', '/login', '/dashboard'];
-  const hideBottomNav = nonVisiblePages.includes(pathname || '');
+  // const nonVisiblePages = ['/reservar', '/confirmacion', '/login', '/dashboard'];
 
-
-  // const hideBottomNav = pathname?.includes('/reservar') || pathname?.includes('/confirmacion') || pathname?.includes('/login') || pathname?.includes('/perfil') || pathname?.includes('/dashboard')
+  const hideBottomNav = pathname?.includes('/reservar') || pathname?.includes('/confirmacion') || pathname?.includes('/login') || pathname?.includes('/dashboard')
 
   if (hideBottomNav) return null
 
