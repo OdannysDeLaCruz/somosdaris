@@ -56,7 +56,7 @@ export default async function Home() {
           </div>
 
           {/* Services Grid */}
-          <div className="flex justify-center mb-8 max-w-128 mx-auto">
+          <div className="flex flex-col gap-4 justify-center mb-8 max-w-128 mx-auto">
             {activesServices.map(service => (
               <ServiceCard
                 key={service.id}
@@ -83,7 +83,7 @@ export default async function Home() {
             </p>
           </div>
 
-          <div className="flex justify-center mb-8 max-w-128 mx-auto">
+          <div className="flex flex-col gap-4 justify-center mb-8 max-w-128 mx-auto">
             {comingSoonServices.map(service => (
               <ServiceCard
                 key={service.id}
