@@ -77,41 +77,47 @@ model Package {
 }
 
 model Service {
-  id          String   @id @default(cuid())
-  name        String
-  description String
-  image       String?
-  comingSoon  Boolean  @default(false)
-  // price       Decimal       @db.Decimal(10, 2)
-  createdAt   DateTime @default(now())
-  updatedAt   DateTime @updatedAt
+  id           String        @id @default(cuid())
+  name         String
+  description  String
+  image        String?
+  comingSoon   Boolean       @default(false)
+  pricingModel PricingModel  @default(PACKAGE_BASED)
+  createdAt    DateTime      @default(now())
+  updatedAt    DateTime      @updatedAt
 
-  reservations Reservation[]
+  reservations      Reservation[]
+  pricingOptions    PricingOption[]
+  formulaVariables  FormulaVariable[]
 
   @@map("services")
 }
 
 model Reservation {
-  id        String            @id @default(cuid())
-  type      ReservationType   @default(home)
-  date      DateTime          @db.Timestamptz(3)
-  status    ReservationStatus @default(pending)
-  userId    String
-  serviceId String
-  addressId String
-  packageId String
-  couponId  String?
-  allyId    String?
-  createdAt DateTime          @default(now())
-  updatedAt DateTime          @updatedAt
+  id              String            @id @default(cuid())
+  type            ReservationType   @default(home)
+  date            DateTime          @db.Timestamptz(3)
+  status          ReservationStatus @default(pending)
+  userId          String
+  serviceId       String
+  addressId       String
+  packageId       String?
+  pricingOptionId String?
+  pricingData     Json?
+  finalPrice      Decimal           @default(0) @db.Decimal(10, 2)
+  couponId        String?
+  allyId          String?
+  createdAt       DateTime          @default(now())
+  updatedAt       DateTime          @updatedAt
 
-  user     User      @relation(fields: [userId], references: [id], onDelete: Cascade, name: "CustomerReservations")
-  service  Service   @relation(fields: [serviceId], references: [id])
-  address  Address   @relation(fields: [addressId], references: [id])
-  package  Package   @relation(fields: [packageId], references: [id])
-  coupon   Coupon?   @relation(fields: [couponId], references: [id])
-  ally     User?     @relation(fields: [allyId], references: [id], onDelete: SetNull, name: "AllyReservations")
-  payments Payment[]
+  user          User           @relation(fields: [userId], references: [id], onDelete: Cascade, name: "CustomerReservations")
+  service       Service        @relation(fields: [serviceId], references: [id])
+  address       Address        @relation(fields: [addressId], references: [id])
+  package       Package?       @relation(fields: [packageId], references: [id])
+  pricingOption PricingOption? @relation(fields: [pricingOptionId], references: [id])
+  coupon        Coupon?        @relation(fields: [couponId], references: [id])
+  ally          User?          @relation(fields: [allyId], references: [id], onDelete: SetNull, name: "AllyReservations")
+  payments      Payment[]
 
   @@map("reservations")
 }
@@ -166,6 +172,12 @@ enum DiscountType {
   fixed
 }
 
+enum PricingModel {
+  PACKAGE_BASED
+  FORMULA_BASED
+  ITEM_BASED
+}
+
 model Session {
   id               String   @id @default(cuid())
   userId           String
@@ -185,4 +197,44 @@ model Session {
   @@index([refreshToken])
   @@index([userId, revoked])
   @@map("sessions")
+}
+
+model PricingOption {
+  id           String   @id @default(cuid())
+  serviceId    String
+  name         String
+  description  String?
+  basePrice    Decimal  @db.Decimal(10, 2)
+  metadata     Json?
+  displayOrder Int      @default(0)
+  isActive     Boolean  @default(true)
+  createdAt    DateTime @default(now())
+  updatedAt    DateTime @updatedAt
+
+  service      Service       @relation(fields: [serviceId], references: [id], onDelete: Cascade)
+  reservations Reservation[]
+
+  @@index([serviceId, isActive])
+  @@map("pricing_options")
+}
+
+model FormulaVariable {
+  id           String   @id @default(cuid())
+  serviceId    String
+  name         String
+  label        String
+  type         String
+  options      Json?
+  minValue     Int?
+  maxValue     Int?
+  defaultValue String?
+  multiplier   Decimal? @db.Decimal(10, 2)
+  displayOrder Int      @default(0)
+  createdAt    DateTime @default(now())
+  updatedAt    DateTime @updatedAt
+
+  service Service @relation(fields: [serviceId], references: [id], onDelete: Cascade)
+
+  @@index([serviceId])
+  @@map("formula_variables")
 }

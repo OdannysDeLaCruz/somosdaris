@@ -11,6 +11,8 @@ async function main() {
   await prisma.address.deleteMany()
   await prisma.user.deleteMany()
   await prisma.coupon.deleteMany()
+  await prisma.formulaVariable.deleteMany()
+  await prisma.pricingOption.deleteMany()
   await prisma.package.deleteMany()
   await prisma.service.deleteMany()
   await prisma.role.deleteMany()
@@ -52,18 +54,23 @@ async function main() {
 
   console.log('✅ Usuario administrador creado:', adminUser)
 
-  // Crear servicio de Limpieza
+  // ========================================
+  // SERVICIO 1: LIMPIEZA (PACKAGE_BASED)
+  // ========================================
+
   const cleaningService = await prisma.service.create({
     data: {
       name: 'Limpieza',
-      description: 'Servicio profesional de limpieza para tu hogar u oficina',
-      image: 'https://example.com/limpieza.jpg',
+      description: 'Servicio profesional de limpieza para tu hogar u oficina. Incluye limpieza profunda, organización y sanitización.',
+      image: '/images/limpieza.jpg',
+      comingSoon: false,
+      pricingModel: 'PACKAGE_BASED',
     },
   })
 
-  console.log('✅ Servicio de Limpieza creado:', cleaningService)
+  console.log('✅ Servicio de Limpieza creado:', cleaningService.name)
 
-  // Crear paquetes de horas
+  // Crear paquetes de horas (legacy - aún se usan por si hay código antiguo)
   const packages = await prisma.package.createMany({
     data: [
       {
@@ -87,7 +94,102 @@ async function main() {
     ],
   })
 
-  console.log(`✅ ${packages.count} paquetes de horas creados`)
+  console.log(`✅ ${packages.count} paquetes legacy creados`)
+
+  // Crear pricing options para el servicio de Limpieza
+  await prisma.pricingOption.createMany({
+    data: [
+      {
+        serviceId: cleaningService.id,
+        name: '4 Horas',
+        description: 'Perfecto para casas pequeñas (1-2 habitaciones)',
+        basePrice: 91000,
+        metadata: { hours: 4 },
+        displayOrder: 4,
+        isActive: true,
+      },
+      {
+        serviceId: cleaningService.id,
+        name: '6 Horas',
+        description: 'Para casas medianas (2-3 habitaciones)',
+        basePrice: 117000,
+        metadata: { hours: 6 },
+        displayOrder: 6,
+        isActive: true,
+      },
+      {
+        serviceId: cleaningService.id,
+        name: '8 Horas',
+        description: 'Para casas grandes (4+ habitaciones)',
+        basePrice: 137000,
+        metadata: { hours: 8 },
+        displayOrder: 8,
+        isActive: true,
+      },
+    ],
+  })
+
+  console.log('✅ Opciones de precio para Limpieza creadas')
+
+  // ========================================
+  // SERVICIO 2: LIMPIEZA DE TANQUES (FORMULA_BASED)
+  // ========================================
+
+  const tankService = await prisma.service.create({
+    data: {
+      name: 'Limpieza de Tanques Elevados',
+      description: 'Servicio especializado en limpieza y desinfección de tanques elevados de agua potable. Incluye lavado, desinfección y certificado sanitario.',
+      image: '/images/tanques.jpg',
+      comingSoon: false,
+      pricingModel: 'FORMULA_BASED',
+    },
+  })
+
+  console.log('✅ Servicio de Tanques creado:', tankService.name)
+
+  // Crear pricing option base para tanques
+  await prisma.pricingOption.create({
+    data: {
+      serviceId: tankService.id,
+      name: 'Limpieza de Tanque',
+      description: 'Precio base por tanque, ajustable según cantidad y altura',
+      basePrice: 50000,
+      displayOrder: 1,
+      isActive: true,
+    },
+  })
+
+  console.log('✅ Opción de precio para Tanques creada')
+
+  // Crear variables de fórmula para tanques
+  await prisma.formulaVariable.createMany({
+    data: [
+      {
+        serviceId: tankService.id,
+        name: 'cantidad',
+        label: 'Número de tanques',
+        type: 'number',
+        minValue: 1,
+        maxValue: 10,
+        defaultValue: '1',
+        multiplier: 1,
+        displayOrder: 1,
+      },
+      {
+        serviceId: tankService.id,
+        name: 'altura',
+        label: 'Piso donde está el tanque',
+        type: 'number',
+        minValue: 1,
+        maxValue: 10,
+        defaultValue: '1',
+        multiplier: 5000,
+        displayOrder: 2,
+      },
+    ],
+  })
+
+  console.log('✅ Variables de fórmula para Tanques creadas')
 
   // Crear cupón de primera reserva (10% de descuento automático)
   const firstReservationCoupon = await prisma.coupon.create({
@@ -104,7 +206,19 @@ async function main() {
 
   console.log('✅ Cupón de primera reserva creado:', firstReservationCoupon)
 
-  console.log('🎉 Seed completado exitosamente!')
+  console.log('\n🎉 Seed completado exitosamente!')
+  console.log('\n📊 Resumen:')
+  console.log('   - 3 Roles creados (admin, ally, customer)')
+  console.log('   - 1 Usuario admin creado')
+  console.log('   - 2 Servicios creados:')
+  console.log('     • Limpieza (PACKAGE_BASED) - 3 opciones de precio')
+  console.log('     • Limpieza de Tanques (FORMULA_BASED) - 2 variables de fórmula')
+  console.log('   - 3 Paquetes legacy creados')
+  console.log('   - 1 Cupón de primera reserva creado')
+  console.log('\n💡 Puedes iniciar sesión con:')
+  console.log('   Email: admin@somosdaris.com')
+  console.log('   Teléfono: +573017953727')
+  console.log('')
 }
 
 main()
