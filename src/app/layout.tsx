@@ -1,6 +1,7 @@
 import type { Metadata } from "next";
 import { Roboto } from "next/font/google";
 import localFont from "next/font/local";
+import { Analytics } from '@vercel/analytics/next';
 import "./globals.css";
 import { AuthProvider } from "@/components/AuthProvider";
 import { OrganizationSchema } from "@/components/StructuredData";
@@ -113,6 +114,7 @@ export default function RootLayout({
         <AuthProvider>
           {children}
         </AuthProvider>
+        <Analytics />
       </body>
     </html>
   );
