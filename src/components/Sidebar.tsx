@@ -3,6 +3,7 @@
 import Link from 'next/link'
 import { useEffect } from 'react'
 import { Home, ClipboardList, Heart, MapPin } from 'lucide-react'
+import { ROUTES } from '@/lib/routes'
 
 interface SidebarProps {
   isOpen: boolean
@@ -72,7 +73,7 @@ export default function Sidebar({ isOpen, onClose }: SidebarProps) {
             <ul className="space-y-2">
               <li>
                 <Link
-                  href="/"
+                  href={ROUTES.APP_HOME}
                   className="flex items-center gap-3 px-4 py-3 rounded-lg hover:bg-gray-100 dark:hover:bg-gray-800 transition-colors text-gray-700 dark:text-gray-200"
                   onClick={onClose}
                 >
@@ -82,7 +83,7 @@ export default function Sidebar({ isOpen, onClose }: SidebarProps) {
               </li>
               <li>
                 <Link
-                  href="/historial"
+                  href={ROUTES.HISTORIAL}
                   className="flex items-center gap-3 px-4 py-3 rounded-lg hover:bg-gray-100 dark:hover:bg-gray-800 transition-colors text-gray-700 dark:text-gray-200"
                   onClick={onClose}
                 >
@@ -92,7 +93,7 @@ export default function Sidebar({ isOpen, onClose }: SidebarProps) {
               </li>
               <li>
                 <Link
-                  href="/favoritos"
+                  href={ROUTES.FAVORITOS}
                   className="flex items-center gap-3 px-4 py-3 rounded-lg hover:bg-gray-100 dark:hover:bg-gray-800 transition-colors text-gray-700 dark:text-gray-200"
                   onClick={onClose}
                 >
@@ -102,7 +103,7 @@ export default function Sidebar({ isOpen, onClose }: SidebarProps) {
               </li>
               <li>
                 <Link
-                  href="/direcciones"
+                  href={ROUTES.DIRECCIONES}
                   className="flex items-center gap-3 px-4 py-3 rounded-lg hover:bg-gray-100 dark:hover:bg-gray-800 transition-colors text-gray-700 dark:text-gray-200"
                   onClick={onClose}
                 >

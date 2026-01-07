@@ -1,5 +1,6 @@
 import Link from 'next/link'
 import Image from 'next/image'
+import { ROUTES } from '@/lib/routes'
 
 interface ServiceCardProps {
   id: string
@@ -58,7 +59,7 @@ export default function ServiceCard({ id, name, description, image, comingSoon =
 
   return (
     <Link
-      href={`/servicios/${id}/reservar`}
+      href={ROUTES.SERVICIOS_RESERVAR(id)}
       className={`${baseClasses} ${interactiveClasses}`}
     >
       {content}

@@ -5,6 +5,7 @@ import { X } from 'lucide-react'
 import { useAuth } from './AuthProvider'
 import { useRouter } from 'next/navigation'
 import Image from 'next/image'
+import { ROUTES } from '@/lib/routes'
 
 export default function FirstReservationBanner() {
   const [isVisible, setIsVisible] = useState(true)
@@ -43,7 +44,7 @@ export default function FirstReservationBanner() {
 
   const handleGoToLogin = () => {
     handleDismiss()
-    router.push('/login')
+    router.push(ROUTES.LOGIN)
   }
 
   if (!modalType) {

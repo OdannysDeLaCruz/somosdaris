@@ -25,7 +25,7 @@ function LoginContent() {
   const [loading, setLoading] = useState(false)
   const [countdown, setCountdown] = useState(0)
 
-  const returnUrl = searchParams.get('returnUrl') || '/'
+  const returnUrl = searchParams.get('returnUrl') || '/app'
 
   // Countdown timer
   useEffect(() => {
@@ -199,7 +199,7 @@ function LoginContent() {
         <div className="text-center">
           { step != 2 ? (
             <div className="flex justify-center mt-8 mb-16">
-              <Image src="/images/logo-azul.png" alt="Daris" width={200} height={100} priority loading="eager" style={{ width: 'auto', height: 'auto' }} />
+              <Image src="/images/logo-azul.png" alt="Daris" width={120} height={60} priority loading="eager" style={{ width: 'auto', height: 'auto' }} />
             </div>
           ) : <div className="h-20"></div>}
           <h1 className="text-2xl font-bold text-zinc-900 dark:text-zinc-50 mb-2">

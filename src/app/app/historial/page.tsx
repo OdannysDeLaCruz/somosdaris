@@ -14,15 +14,23 @@ interface Reservation {
   type: string
   date: string
   status: string
+  finalPrice: number
+  pricingData?: unknown
   service: {
     name: string
     description: string
   }
-  package: {
+  package?: {
     description: string
     hours: number
     price: number
-  }
+  } | null
+  pricingOption?: {
+    id: string
+    name: string
+    description: string | null
+    basePrice: number
+  } | null
   address: {
     address: string
     neighborhood: string
@@ -215,19 +223,27 @@ export default function HistorialPage() {
                   <path d="M12 8v4l3 3m6-3a9 9 0 11-18 0 9 9 0 0118 0z"></path>
                 </svg>
                 <div className="flex items-center gap-2">
-                  <span>{reservation.package.hours} horas</span>
+                  {/* Mostrar info según el tipo de pricing */}
+                  {reservation.pricingOption ? (
+                    <span>{reservation.pricingOption.name}</span>
+                  ) : reservation.package ? (
+                    <span>{reservation.package.hours} horas</span>
+                  ) : (
+                    <span>Servicio</span>
+                  )}
+
+                  {/* Mostrar precio con descuento si aplica */}
                   {reservation.coupon ? (
                     <>
                       <span className="text-gray-400 line-through">
-                        ${Number(reservation.package.price).toLocaleString('es-CO')}
+                        ${(
+                          reservation.pricingOption?.basePrice ||
+                          reservation.package?.price ||
+                          reservation.finalPrice
+                        ).toLocaleString('es-CO')}
                       </span>
                       <span className="font-semibold text-green-600 dark:text-green-400">
-                        ${(
-                          Number(reservation.package.price) -
-                          (reservation.coupon.discountType === 'percentage'
-                            ? Number(reservation.package.price) * (Number(reservation.coupon.discountAmount) / 100)
-                            : Number(reservation.coupon.discountAmount))
-                        ).toLocaleString('es-CO')}
+                        ${reservation.finalPrice.toLocaleString('es-CO')}
                       </span>
                       <span className="text-xs bg-green-100 dark:bg-green-900/20 text-green-600 dark:text-green-400 px-2 py-0.5 rounded">
                         -{reservation.coupon.discountAmount}
@@ -236,7 +252,7 @@ export default function HistorialPage() {
                     </>
                   ) : (
                     <span className="font-semibold">
-                      ${Number(reservation.package.price).toLocaleString('es-CO')}
+                      ${reservation.finalPrice.toLocaleString('es-CO')}
                     </span>
                   )}
                 </div>

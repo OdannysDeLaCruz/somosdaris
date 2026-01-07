@@ -13,8 +13,8 @@ export default function Header() {
   const pathname = usePathname()
   const { user } = useAuth()
 
-  // No mostrar header en páginas de reserva, confirmación, login y dashboard
-  const hideHeader = pathname?.includes('/reservar') || pathname?.includes('/confirmacion') || pathname?.includes('/login') || pathname?.includes('/dashboard')
+  // No mostrar header en páginas de reserva, confirmación, login, dashboard y landing
+  const hideHeader = pathname?.includes('/app/reservar') || pathname?.includes('/app/confirmacion') || pathname?.includes('/login') || pathname?.includes('/app/dashboard') || pathname === '/'
 
   if (hideHeader) return null
 

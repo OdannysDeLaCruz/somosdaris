@@ -1,5 +1,6 @@
 import Link from 'next/link'
 import { ArrowLeft } from 'lucide-react'
+import { ROUTES } from '@/lib/routes'
 
 export default function NotFound() {
   return (
@@ -15,7 +16,7 @@ export default function NotFound() {
       </div>
 
       <Link
-        href="/dashboard/reservas"
+        href={ROUTES.DASHBOARD_RESERVAS}
         className="flex items-center gap-2 px-6 py-3 bg-blue-600 text-white rounded-lg hover:bg-blue-700 transition-colors font-medium"
       >
         <ArrowLeft size={20} />

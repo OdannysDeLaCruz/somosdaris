@@ -10,6 +10,7 @@ async function getReservations() {
       ally: true,
       service: true,
       package: true,
+      pricingOption: true,
       address: true,
     },
     orderBy: {
@@ -100,7 +101,7 @@ export default async function ReservasPage() {
                   Servicio
                 </th>
                 <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
-                  Paquete
+                  Opción / Precio
                 </th>
                 <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
                   Fecha
@@ -152,8 +153,23 @@ export default async function ReservasPage() {
                     </td>
                     <td className="px-6 py-4 whitespace-nowrap">
                       <div className="text-sm text-gray-900">
-                        {reservation.package.hours}h - $
-                        {Number(reservation.package.price).toLocaleString()}
+                        {reservation.package ? (
+                          // Sistema antiguo: Package
+                          <span>
+                            {reservation.package.hours}h - $
+                            {Number(reservation.package.price).toLocaleString('es-CO')}
+                          </span>
+                        ) : reservation.pricingOption ? (
+                          // Sistema nuevo: PricingOption
+                          <div>
+                            <div className="font-medium">{reservation.pricingOption.name}</div>
+                            <div className="text-xs text-gray-500">
+                              ${Number(reservation.finalPrice).toLocaleString('es-CO')}
+                            </div>
+                          </div>
+                        ) : (
+                          <span className="text-gray-400">Sin opción</span>
+                        )}
                       </div>
                     </td>
                     <td className="px-6 py-4 whitespace-nowrap">

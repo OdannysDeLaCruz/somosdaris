@@ -1,22 +1,17 @@
 'use client'
 
-interface Package {
-  id: string
-  description: string
-  hours: number
-  price: number
-}
+import { PricingSelection } from './PricingSelector'
 
 interface FixedFooterProps {
-  selectedPackage?: Package
+  selectedPricing?: PricingSelection
   onContinue: () => void
   disabled?: boolean
   applyFirstReservationDiscount?: boolean
 }
 
-export function FixedFooter({ selectedPackage, onContinue, disabled, applyFirstReservationDiscount = false }: FixedFooterProps) {
+export function FixedFooter({ selectedPricing, onContinue, disabled, applyFirstReservationDiscount = false }: FixedFooterProps) {
   const discountPercentage = 10
-  const basePrice = selectedPackage ? Number(selectedPackage.price) : 0
+  const basePrice = selectedPricing ? selectedPricing.calculatedPrice : 0
   const discountAmount = applyFirstReservationDiscount ? basePrice * (discountPercentage / 100) : 0
   const finalPrice = basePrice - discountAmount
   return (
@@ -25,10 +20,10 @@ export function FixedFooter({ selectedPackage, onContinue, disabled, applyFirstR
         <div className="flex items-center justify-between gap-4">
           {/* Sección de total */}
           <div className="flex-1">
-            {selectedPackage ? (
+            {selectedPricing ? (
               <div>
                 <div className="text-sm text-zinc-600 dark:text-zinc-400">
-                  {selectedPackage.description} ({selectedPackage.hours} horas)
+                  {selectedPricing.displayName}
                 </div>
 
                 {applyFirstReservationDiscount ? (
@@ -53,7 +48,7 @@ export function FixedFooter({ selectedPackage, onContinue, disabled, applyFirstR
               </div>
             ) : (
               <div className="text-sm text-zinc-500 dark:text-zinc-500">
-                Selecciona un paquete para continuar
+                Selecciona una opción para continuar
               </div>
             )}
           </div>
@@ -61,7 +56,7 @@ export function FixedFooter({ selectedPackage, onContinue, disabled, applyFirstR
           {/* Botón continuar */}
           <button
             onClick={onContinue}
-            disabled={disabled || !selectedPackage}
+            disabled={disabled || !selectedPricing}
             className="px-8 py-3 bg-zinc-900 dark:bg-zinc-50 text-white dark:text-black rounded-lg font-semibold hover:bg-zinc-800 dark:hover:bg-zinc-200 disabled:opacity-50 disabled:cursor-not-allowed transition-all"
           >
             Continuar

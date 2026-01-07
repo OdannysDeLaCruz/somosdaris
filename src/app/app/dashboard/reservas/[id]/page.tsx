@@ -19,12 +19,31 @@ async function getReservation(id: string) {
       service: true,
       address: true,
       package: true,
+      pricingOption: true,
       coupon: true,
       payments: true,
     },
   })
 
-  return reservation
+  if (!reservation) return null
+
+  // Convertir Decimal a number para evitar errores de serialización
+  return {
+    ...reservation,
+    finalPrice: Number(reservation.finalPrice),
+    package: reservation.package ? {
+      ...reservation.package,
+      price: Number(reservation.package.price),
+    } : null,
+    pricingOption: reservation.pricingOption ? {
+      ...reservation.pricingOption,
+      basePrice: Number(reservation.pricingOption.basePrice),
+    } : null,
+    coupon: reservation.coupon ? {
+      ...reservation.coupon,
+      discountAmount: Number(reservation.coupon.discountAmount),
+    } : null,
+  }
 }
 
 async function getAllies() {

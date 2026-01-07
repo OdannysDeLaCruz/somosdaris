@@ -4,7 +4,7 @@ import { useState, useEffect } from 'react'
 import { useRouter, useParams } from 'next/navigation'
 import Link from 'next/link'
 import { ArrowLeft } from 'lucide-react'
-import { PackageSelector } from '@/components/PackageSelector'
+import { PricingSelector, PricingSelection } from '@/components/PricingSelector'
 import { DateTimePicker } from '@/components/DateTimePicker'
 import { AddressForm, AddressFormData } from '@/components/AddressForm'
 import { FixedFooter } from '@/components/FixedFooter'
@@ -15,13 +15,7 @@ import { useAuth } from '@/components/AuthProvider'
 import { fetchWithAuth } from '@/lib/fetchWithAuth'
 import Image from 'next/image'
 import FirstReservationTag from '@/components/FirstReservationTag'
-
-interface Package {
-  id: string
-  description: string
-  hours: number
-  price: number
-}
+import { ROUTES } from '@/lib/routes'
 
 interface Service {
   id: string
@@ -50,7 +44,7 @@ export default function ReservarPage() {
 
   const [step, setStep] = useState(1)
   const [service, setService] = useState<Service | null>(null)
-  const [selectedPackage, setSelectedPackage] = useState<Package | undefined>()
+  const [selectedPricing, setSelectedPricing] = useState<PricingSelection | undefined>()
   const [selectedDate, setSelectedDate] = useState<Date | undefined>()
   const [selectedDateFormated, setSelectedDateFormated] = useState<string | undefined>()
   const [selectedTime, setSelectedTime] = useState<string | undefined>()
@@ -79,7 +73,7 @@ export default function ReservarPage() {
       try {
         const state = JSON.parse(savedState)
         if (state.serviceId === serviceId) {
-          if (state.selectedPackage) setSelectedPackage(state.selectedPackage)
+          if (state.selectedPricing) setSelectedPricing(state.selectedPricing)
           if (state.selectedDate) setSelectedDate(new Date(state.selectedDate))
           if (state.selectedDateFormated) setSelectedDateFormated(state.selectedDateFormated)
           if (state.selectedTime) setSelectedTime(state.selectedTime)
@@ -139,7 +133,7 @@ export default function ReservarPage() {
     return date.toDateString() === today.toDateString()
   }
 
-  const canContinueStep1 = selectedPackage && selectedDate && !isToday(selectedDate)
+  const canContinueStep1 = selectedPricing && selectedDate && !isToday(selectedDate)
   const canContinueStep2 = user && selectedAddressId
 
   const handleContinueStep1 = () => {
@@ -208,7 +202,7 @@ export default function ReservarPage() {
     // Save current state to sessionStorage
     const state = {
       serviceId,
-      selectedPackage,
+      selectedPricing,
       selectedDate: selectedDate?.toISOString(),
       selectedDateFormated,
       selectedTime,
@@ -217,12 +211,12 @@ export default function ReservarPage() {
     sessionStorage.setItem(STORAGE_KEY, JSON.stringify(state))
 
     // Redirect to login with return URL
-    const currentPath = `/servicios/${serviceId}/reservar`
-    router.push(`/login?returnUrl=${encodeURIComponent(currentPath)}`)
+    const currentPath = `/app/servicios/${serviceId}/reservar`
+    router.push(`${ROUTES.LOGIN}?returnUrl=${encodeURIComponent(currentPath)}`)
   }
 
   const handleReservar = async () => {
-    if (!selectedPackage || !selectedDate || !selectedAddressId || !selectedTime || !user) {
+    if (!selectedPricing || !selectedDate || !selectedAddressId || !selectedTime || !user) {
       alert('Faltan datos por completar')
       return
     }
@@ -239,7 +233,9 @@ export default function ReservarPage() {
           type: 'home',
           date: reservationDate,
           serviceId,
-          packageId: selectedPackage.id,
+          pricingOptionId: selectedPricing.pricingOptionId,
+          pricingData: selectedPricing.pricingData,
+          // NOTE: finalPrice se calcula en el backend por seguridad
           addressId: selectedAddressId,
         }),
       })
@@ -250,7 +246,7 @@ export default function ReservarPage() {
       }
 
       const reservation = await response.json()
-      router.push(`/confirmacion?id=${reservation.id}`)
+      router.push(`${ROUTES.CONFIRMACION}?id=${reservation.id}`)
     } catch (error: unknown) {
       console.error('Error:', error)
       if (error instanceof Error) {
@@ -272,8 +268,8 @@ export default function ReservarPage() {
           <Image
             src="/images/logo-azul.png"
             alt="Loading"
-            width={200}
-            height={200}
+            width={120}
+            height={60}
             loading="eager"
             style={{ width: 'auto', height: 'auto' }}
           />
@@ -310,9 +306,10 @@ export default function ReservarPage() {
         {step === 1 && (
           <div className="space-y-8 mt-4">
 
-            <PackageSelector
-              onSelect={setSelectedPackage}
-              selectedPackageId={selectedPackage?.id}
+            <PricingSelector
+              serviceId={serviceId}
+              onSelect={setSelectedPricing}
+              selectedId={selectedPricing?.pricingOptionId}
             />
 
             {/* What's Included Button */}
@@ -458,10 +455,10 @@ export default function ReservarPage() {
         )}
 
         {/* Step 3: Summary */}
-        {step === 3 && selectedPackage && selectedDate && selectedAddressData && user && (
+        {step === 3 && selectedPricing && selectedDate && selectedAddressData && user && (
           <div className='mt-4'>
             <ReservationSummary
-              package={selectedPackage}
+              pricing={selectedPricing}
               date={selectedDate}
               address={selectedAddressData}
               userInfo={{
@@ -480,7 +477,7 @@ export default function ReservarPage() {
       {/* Fixed Footer - Only show on steps 1 and 2 */}
       {step === 1 && (
         <FixedFooter
-          selectedPackage={selectedPackage}
+          selectedPricing={selectedPricing}
           onContinue={handleContinueStep1}
           disabled={!canContinueStep1}
           applyFirstReservationDiscount={user?.haveReservations === false}
@@ -488,13 +485,13 @@ export default function ReservarPage() {
       )}
       {step === 2 && user && (
         <FixedFooter
-          selectedPackage={selectedPackage}
+          selectedPricing={selectedPricing}
           onContinue={handleContinueStep2}
           disabled={!canContinueStep2}
           applyFirstReservationDiscount={user.haveReservations === false}
         />
       )}
-      {step === 3 && selectedPackage && (
+      {step === 3 && selectedPricing && (
         <div className="fixed bottom-0 left-0 right-0 bg-white dark:bg-zinc-900 border-t border-zinc-200 dark:border-zinc-800 p-4 z-50">
           <div className="max-w-4xl mx-auto flex gap-4">
             <button

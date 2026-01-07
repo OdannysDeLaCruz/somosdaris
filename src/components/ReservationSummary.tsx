@@ -2,13 +2,7 @@
 
 import { format } from 'date-fns'
 import { es } from 'date-fns/locale'
-
-interface Package {
-  id: string
-  description: string
-  hours: number
-  price: number
-}
+import { PricingSelection } from './PricingSelector'
 
 interface AddressData {
   address: string
@@ -28,7 +22,7 @@ interface UserInfo {
 }
 
 interface ReservationSummaryProps {
-  package: Package
+  pricing: PricingSelection
   date: Date
   address: AddressData
   userInfo: UserInfo
@@ -37,7 +31,7 @@ interface ReservationSummaryProps {
 }
 
 export function ReservationSummary({
-  package: pkg,
+  pricing,
   date,
   address,
   userInfo,
@@ -45,7 +39,7 @@ export function ReservationSummary({
   applyFirstReservationDiscount = false,
 }: ReservationSummaryProps) {
   const discountPercentage = 10
-  const basePrice = Number(pkg.price)
+  const basePrice = pricing.calculatedPrice
   const discountAmount = applyFirstReservationDiscount ? basePrice * (discountPercentage / 100) : 0
   const finalPrice = basePrice - discountAmount
   return (
@@ -65,13 +59,13 @@ export function ReservationSummary({
           </div>
         </div>
 
-        {/* Paquete */}
+        {/* Opción seleccionada */}
         <div>
           <div className="text-sm font-medium text-zinc-500 dark:text-zinc-400">
-            Paquete seleccionado
+            Opción seleccionada
           </div>
           <div className="text-lg font-semibold text-zinc-900 dark:text-zinc-50">
-            {pkg.description} - {pkg.hours} horas
+            {pricing.displayName}
           </div>
           <div className="mt-2 space-y-1">
             <div className="flex justify-between items-center">

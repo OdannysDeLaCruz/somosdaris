@@ -6,6 +6,7 @@ import { es } from 'date-fns/locale'
 import { ArrowLeft } from 'lucide-react'
 import Link from 'next/link'
 import { Decimal } from '@prisma/client/runtime/library'
+import { ROUTES } from '@/lib/routes'
 
 type ReservationStatus = 'pending' | 'completed' | 'cancelled'
 type ReservationType = 'home' | 'office'
@@ -25,6 +26,8 @@ interface ReservationDetailProps {
     date: Date
     status: ReservationStatus
     createdAt: Date
+    finalPrice: number
+    pricingData?: unknown
     user: {
       id: string
       name: string | null
@@ -50,12 +53,18 @@ interface ReservationDetailProps {
       id: string
       description: string
       hours: number
-      price: Decimal
-    }
+      price: number
+    } | null
+    pricingOption: {
+      id: string
+      name: string
+      description: string | null
+      basePrice: number
+    } | null
     coupon: {
       id: string
       discountCode: string
-      discountAmount: Decimal
+      discountAmount: number
       discountType: 'percentage' | 'fixed'
     } | null
     payments: Array<{
@@ -135,19 +144,19 @@ export default function ReservationDetail({ reservation: initialReservation, all
   }
 
   const calculateTotal = () => {
-    const basePrice = Number(reservation.package.price)
+    return reservation.finalPrice
+  }
 
-    if (!reservation.coupon) return basePrice
-
-    if (reservation.coupon.discountType === 'percentage') {
-      return basePrice - (basePrice * Number(reservation.coupon.discountAmount)) / 100
-    } else {
-      return basePrice - Number(reservation.coupon.discountAmount)
+  const getBasePrice = () => {
+    if (reservation.pricingOption) {
+      return reservation.pricingOption.basePrice
     }
+    // Fallback a finalPrice si no hay pricing option
+    return reservation.finalPrice
   }
 
   const discount = reservation.coupon
-    ? Number(reservation.package.price) - calculateTotal()
+    ? getBasePrice() - calculateTotal()
     : 0
 
   return (
@@ -155,7 +164,7 @@ export default function ReservationDetail({ reservation: initialReservation, all
       {/* Header */}
       <div className="flex items-center gap-4">
         <Link
-          href="/dashboard/reservas"
+          href={ROUTES.DASHBOARD_RESERVAS}
           className="p-2 rounded-lg hover:bg-gray-100 transition-colors"
         >
           <ArrowLeft size={24} className="text-gray-600" />
@@ -211,7 +220,6 @@ export default function ReservationDetail({ reservation: initialReservation, all
           )}
         </div>
 
-        {/* Cliente */}
         <div className="p-4 hover:bg-gray-50 transition-colors">
           <label className="block text-sm font-medium text-gray-500 mb-1">
             Cliente
@@ -221,7 +229,6 @@ export default function ReservationDetail({ reservation: initialReservation, all
           </p>
         </div>
 
-        {/* Teléfono */}
         <div className="p-4 hover:bg-gray-50 transition-colors">
           <label className="block text-sm font-medium text-gray-500 mb-1">
             Teléfono
@@ -229,7 +236,6 @@ export default function ReservationDetail({ reservation: initialReservation, all
           <p className="text-base text-gray-900">{reservation.user.phone}</p>
         </div>
 
-        {/* Email */}
         {reservation.user.email && (
           <div className="p-4 hover:bg-gray-50 transition-colors">
             <label className="block text-sm font-medium text-gray-500 mb-1">
@@ -239,7 +245,6 @@ export default function ReservationDetail({ reservation: initialReservation, all
           </div>
         )}
 
-        {/* Servicio */}
         <div className="p-4 hover:bg-gray-50 transition-colors">
           <label className="block text-sm font-medium text-gray-500 mb-1">
             Servicio
@@ -247,7 +252,6 @@ export default function ReservationDetail({ reservation: initialReservation, all
           <p className="text-base text-gray-900">{reservation.service.name}</p>
         </div>
 
-        {/* Tipo */}
         <div className="p-4 hover:bg-gray-50 transition-colors">
           <label className="block text-sm font-medium text-gray-500 mb-1">
             Tipo
@@ -255,7 +259,6 @@ export default function ReservationDetail({ reservation: initialReservation, all
           <p className="text-base text-gray-900">{getTypeLabel(reservation.type)}</p>
         </div>
 
-        {/* Fecha y Hora */}
         <div className="p-4 hover:bg-gray-50 transition-colors">
           <label className="block text-sm font-medium text-gray-500 mb-1">
             Fecha y Hora
@@ -265,7 +268,6 @@ export default function ReservationDetail({ reservation: initialReservation, all
           </p>
         </div>
 
-        {/* Dirección */}
         <div className="p-4 hover:bg-gray-50 transition-colors">
           <label className="block text-sm font-medium text-gray-500 mb-1">
             Dirección
@@ -281,28 +283,46 @@ export default function ReservationDetail({ reservation: initialReservation, all
           )}
         </div>
 
-        {/* Paquete */}
-        <div className="p-4 hover:bg-gray-50 transition-colors">
-          <label className="block text-sm font-medium text-gray-500 mb-1">
-            Paquete
-          </label>
-          <p className="text-base text-gray-900">
-            {reservation.package.description} ({reservation.package.hours} horas)
-          </p>
-        </div>
+        {reservation.pricingOption && (
+          <div className="p-4 hover:bg-gray-50 transition-colors">
+            <label className="block text-sm font-medium text-gray-500 mb-1">
+              Opción Seleccionada
+            </label>
+            <p className="text-base text-gray-900 font-medium">
+              {reservation.pricingOption.name}
+            </p>
+            {reservation.pricingOption.description && (
+              <p className="text-sm text-gray-600 mt-1">
+                {reservation.pricingOption.description}
+              </p>
+            )}
+          </div>
+        )}
+
+        {/* Datos de Pricing (para fórmulas) */}
+        {/* {reservation.pricingData && (
+          <div className="p-4 hover:bg-gray-50 transition-colors">
+            <label className="block text-sm font-medium text-gray-500 mb-1">
+              Detalles
+            </label>
+            <p className="text-sm text-gray-900 font-mono">
+              {JSON.stringify(reservation.pricingData, null, 2)}
+            </p>
+          </div>
+        )} */}
 
         {/* Precio Base */}
-        <div className="p-4 hover:bg-gray-50 transition-colors">
+        {/* <div className="p-4 hover:bg-gray-50 transition-colors">
           <label className="block text-sm font-medium text-gray-500 mb-1">
             Precio Base
           </label>
           <p className="text-base text-gray-900">
-            ${Number(reservation.package.price).toLocaleString()}
+            ${getBasePrice().toLocaleString('es-CO')}
           </p>
-        </div>
+        </div> */}
 
         {/* Cupón */}
-        {reservation.coupon && (
+        {/* {reservation.coupon && (
           <>
             <div className="p-4 hover:bg-gray-50 transition-colors">
               <label className="block text-sm font-medium text-gray-500 mb-1">
@@ -327,30 +347,30 @@ export default function ReservationDetail({ reservation: initialReservation, all
               </p>
             </div>
           </>
-        )}
+        )} */}
 
         {/* Total */}
-        <div className="p-4 bg-blue-50 hover:bg-blue-100 transition-colors">
+        {/* <div className="p-4 bg-blue-50 hover:bg-blue-100 transition-colors">
           <label className="block text-sm font-medium text-blue-700 mb-1">
             Total
           </label>
           <p className="text-2xl font-bold text-blue-900">
             ${calculateTotal().toLocaleString()}
           </p>
-        </div>
+        </div> */}
 
         {/* Fecha de Creación */}
-        <div className="p-4 hover:bg-gray-50 transition-colors">
+        {/* <div className="p-4 hover:bg-gray-50 transition-colors">
           <label className="block text-sm font-medium text-gray-500 mb-1">
             Fecha de Creación
           </label>
           <p className="text-base text-gray-900">
             {format(new Date(reservation.createdAt), 'PPP p', { locale: es })}
           </p>
-        </div>
+        </div> */}
 
         {/* Pagos */}
-        {reservation.payments.length > 0 && (
+        {/* {reservation.payments.length > 0 && (
           <div className="p-4 hover:bg-gray-50 transition-colors">
             <label className="block text-sm font-medium text-gray-500 mb-2">
               Pagos Registrados
@@ -376,7 +396,7 @@ export default function ReservationDetail({ reservation: initialReservation, all
               ))}
             </div>
           </div>
-        )}
+        )} */}
       </div>
     </div>
   )

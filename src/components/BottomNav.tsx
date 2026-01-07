@@ -3,36 +3,37 @@
 import Link from 'next/link'
 import { usePathname } from 'next/navigation'
 import { Home, ClipboardList, Heart, MapPin } from 'lucide-react'
+import { ROUTES } from '@/lib/routes'
 
 export default function BottomNav() {
   const pathname = usePathname()
-console.log(pathname)
+  console.log(pathname)
   // Don't show bottom nav on these pages
-  // const nonVisiblePages = ['/reservar', '/confirmacion', '/login', '/dashboard'];
+  // const nonVisiblePages = ['/app/reservar', '/app/confirmacion', '/login', '/app/dashboard'];
 
-  const hideBottomNav = pathname?.includes('/reservar') || pathname?.includes('/confirmacion') || pathname?.includes('/login') || pathname?.includes('/dashboard')
+  const hideBottomNav = pathname?.includes('/app/reservar') || pathname?.includes('/app/confirmacion') || pathname?.includes('/login') || pathname?.includes('/app/dashboard') || pathname === '/'
 
   if (hideBottomNav) return null
 
   const navItems = [
     {
       name: 'Home',
-      href: '/',
+      href: ROUTES.APP_HOME,
       Icon: Home,
     },
     {
       name: 'Historial',
-      href: '/historial',
+      href: ROUTES.HISTORIAL,
       Icon: ClipboardList,
     },
     {
       name: 'Favoritos',
-      href: '/favoritos',
+      href: ROUTES.FAVORITOS,
       Icon: Heart,
     },
     {
       name: 'Direcciones',
-      href: '/direcciones',
+      href: ROUTES.DIRECCIONES,
       Icon: MapPin,
     },
   ]

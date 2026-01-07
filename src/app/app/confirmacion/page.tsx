@@ -5,6 +5,7 @@ import { useSearchParams, useRouter } from 'next/navigation'
 // import { CheckCircle2 } from 'lucide-react'
 import Image from 'next/image'
 import { useAuth } from '@/components/AuthProvider'
+import { ROUTES } from '@/lib/routes'
 
 function ConfirmacionContent() {
   const searchParams = useSearchParams()
@@ -17,7 +18,7 @@ function ConfirmacionContent() {
 
   useEffect(() => {
     if (!reservationId) {
-      router.push('/')
+      router.push(ROUTES.APP_HOME)
       return
     }
 
@@ -100,14 +101,14 @@ function ConfirmacionContent() {
         {/* Actions */}
         <div className="flex flex-col sm:flex-row gap-4 mt-28">
           <button
-            onClick={() => handleNavigate('/historial')}
+            onClick={() => handleNavigate(ROUTES.HISTORIAL)}
             disabled={navigating}
             className="flex-1 px-6 py-3 bg-zinc-900 dark:bg-zinc-50 text-white dark:text-black rounded-lg text-center font-semibold hover:bg-zinc-800 dark:hover:bg-zinc-200 disabled:opacity-50 disabled:cursor-not-allowed"
           >
             {navigating ? 'Cargando...' : 'Ver mis reservas'}
           </button>
           <button
-            onClick={() => handleNavigate('/')}
+            onClick={() => handleNavigate(ROUTES.APP_HOME)}
             disabled={navigating}
             className="flex-1 px-6 py-3 border border-zinc-300 dark:border-zinc-700 rounded-lg text-center text-zinc-900 dark:text-zinc-50 hover:bg-zinc-50 dark:hover:bg-zinc-800 disabled:opacity-50 disabled:cursor-not-allowed"
           >

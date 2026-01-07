@@ -37,9 +37,8 @@ export default function AddAllyModal({ isOpen, onClose, onSuccess }: AddAllyModa
 
       if (!response.ok) {
         if (data.details) {
-          // Zod validation errors
           const newErrors: Record<string, string> = {}
-          data.details.forEach((error: any) => {
+          data.details.forEach((error: { path?: string[]; message: string }) => {
             if (error.path) {
               newErrors[error.path[0]] = error.message
             }
