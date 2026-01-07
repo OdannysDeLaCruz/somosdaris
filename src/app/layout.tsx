@@ -2,8 +2,6 @@ import type { Metadata } from "next";
 import { Roboto } from "next/font/google";
 import localFont from "next/font/local";
 import "./globals.css";
-import Header from "@/components/Header";
-import BottomNav from "@/components/BottomNav";
 import { AuthProvider } from "@/components/AuthProvider";
 import { OrganizationSchema } from "@/components/StructuredData";
 
@@ -113,9 +111,7 @@ export default function RootLayout({
       >
         <OrganizationSchema />
         <AuthProvider>
-          <Header />
           {children}
-          <BottomNav />
         </AuthProvider>
       </body>
     </html>
