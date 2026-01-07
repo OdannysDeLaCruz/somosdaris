@@ -23,15 +23,7 @@ export default function AcercaPage() {
                 alt="SomosDaris"
                 width={150}
                 height={50}
-                className="h-9 md:h-14 w-auto dark:hidden"
-                priority
-              />
-              <Image
-                src="/images/logo-blanco.png"
-                alt="SomosDaris"
-                width={120}
-                height={40}
-                className="h-8 md:h-10 w-auto hidden dark:block"
+                className="h-9 md:h-14 w-auto"
                 priority
               />
             </Link>

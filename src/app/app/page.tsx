@@ -6,7 +6,7 @@ import FirstReservationBanner from '@/components/FirstReservationBanner'
 import ServiceCard from '@/components/ServiceCard'
 
 export const metadata: Metadata = {
-  title: "Inicio - Servicios de Limpieza",
+  title: "SomosDaris - Servicios",
   description: "Reserva servicios de limpieza profesional en Valledupar. Paquetes por horas, precios competitivos y servicio garantizado.",
   openGraph: {
     title: "SomosDaris - Servicios de Limpieza en Valledupar",
@@ -41,8 +41,8 @@ export default async function Home() {
             <Image
               src="/images/logo-azul.png"
               alt="Daris"
-              width={150}
-              height={150}
+              width={120}
+              height={60}
               loading="eager"
               fetchPriority='high'
               style={{ height: 'auto', width: 'auto' }}
@@ -77,24 +77,29 @@ export default async function Home() {
             </div>
           )}
 
-          <div className="mt-12">
-            <p className="font-bold text-blue-600 dark:text-blue-400 mb-4 text-center bg-blue-100 dark:bg-blue-900/20 px-5 rounded-full w-fit mx-auto">
-              Próximos servicios
-            </p>
-          </div>
+          { comingSoonServices.length > 0 && (
+            <div>
+              <div className="mt-12">
+                <p className="font-bold text-blue-600 dark:text-blue-400 mb-4 text-center bg-blue-100 dark:bg-blue-900/20 px-5 rounded-full w-fit mx-auto">
+                  Próximos servicios
+                </p>
+              </div>
 
-          <div className="flex flex-col gap-4 justify-center mb-8 max-w-128 mx-auto">
-            {comingSoonServices.map(service => (
-              <ServiceCard
-                key={service.id}
-                id={service.id}
-                name={service.name}
-                description={service.description}
-                image={service.image}
-                comingSoon={service.comingSoon}
-              />
-            ))}
-          </div>
+              <div className="flex flex-col gap-4 justify-center mb-8 max-w-128 mx-auto">
+                {comingSoonServices.map(service => (
+                  <ServiceCard
+                    key={service.id}
+                    id={service.id}
+                    name={service.name}
+                    description={service.description}
+                    image={service.image}
+                    comingSoon={service.comingSoon}
+                  />
+                ))}
+              </div>
+            </div>
+          )}
+
         </main>
       </div>
     </AuthRedirect>
