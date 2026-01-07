@@ -1,6 +1,6 @@
 import { NextResponse } from 'next/server'
 import { prisma } from '@/lib/prisma'
-import { verifyOTP } from '@/lib/supabase/auth'
+// import { verifyOTP } from '@/lib/supabase/auth'
 import { normalizePhone } from '@/lib/phone'
 import { createSession } from '@/lib/session'
 import { setAuthCookies } from '@/lib/auth-cookies'
@@ -15,7 +15,7 @@ const verifyOtpSchema = z.object({
 export async function POST(request: Request) {
   try {
     const body = await request.json()
-    const { phone, code, deviceInfo } = verifyOtpSchema.parse(body)
+    const { phone, /*code,*/ deviceInfo } = verifyOtpSchema.parse(body)
 
     const normalizedPhone = normalizePhone(phone)
 

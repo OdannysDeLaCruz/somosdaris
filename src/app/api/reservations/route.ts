@@ -8,10 +8,81 @@ const reservationSchema = z.object({
   type: z.enum(['home', 'office']).default('home'),
   date: z.string(),
   serviceId: z.string(),
-  packageId: z.string(),
+  packageId: z.string().optional(),        // Legacy
+  pricingOptionId: z.string().optional(),
+  pricingData: z.any().optional(),
   addressId: z.string().min(1, 'La dirección es requerida'),
   couponId: z.string().optional(),
+  // NOTE: finalPrice NO se acepta - se calcula en el backend
 })
+
+// Función para calcular precio según pricing model
+async function calculatePrice(
+  service: { pricingModel: string },
+  pricingOption: { basePrice: any } | null,
+  pricingData: any,
+  formulaVariables: Array<{ name: string; multiplier: any }> | null
+): Promise<number> {
+  if (!pricingOption) {
+    throw new Error('Pricing option no encontrada')
+  }
+
+  const basePrice = Number(pricingOption.basePrice)
+
+  if (service.pricingModel === 'PACKAGE_BASED') {
+    return basePrice
+  }
+
+  if (service.pricingModel === 'FORMULA_BASED') {
+    if (!formulaVariables || !pricingData) {
+      return basePrice
+    }
+
+    let total = basePrice
+    formulaVariables.forEach((variable) => {
+      const value = pricingData[variable.name]
+      if (value !== undefined && variable.multiplier) {
+        const numValue = typeof value === 'number' ? value : parseInt(value)
+
+        if (variable.name === 'cantidad') {
+          total = basePrice * numValue
+        } else if (variable.name === 'altura') {
+          const adjustment = Number(variable.multiplier) * (numValue - 1)
+          total += adjustment
+        }
+      }
+    })
+
+    return total
+  }
+
+  if (service.pricingModel === 'ITEM_BASED') {
+    if (!pricingData?.items) {
+      return basePrice
+    }
+
+    return pricingData.items.reduce((total: number, item: any) => {
+      return total + (item.price * item.quantity)
+    }, 0)
+  }
+
+  return basePrice
+}
+
+// Función para aplicar descuento de cupón
+function applyDiscount(basePrice: number, coupon: { discountType: string; discountAmount: any } | null): number {
+  if (!coupon) {
+    return basePrice
+  }
+
+  const discountAmount = Number(coupon.discountAmount)
+
+  if (coupon.discountType === 'percentage') {
+    return basePrice - (basePrice * discountAmount / 100)
+  }
+
+  return Math.max(0, basePrice - discountAmount)
+}
 
 export async function POST(request: Request) {
   try {
@@ -50,16 +121,41 @@ export async function POST(request: Request) {
       )
     }
 
+    // Fetch service with pricing info
+    const service = await prisma.service.findUnique({
+      where: { id: validatedData.serviceId },
+      include: {
+        pricingOptions: {
+          where: { id: validatedData.pricingOptionId },
+        },
+        formulaVariables: true,
+      },
+    })
+
+    if (!service) {
+      return NextResponse.json(
+        { error: 'Servicio no encontrado' },
+        { status: 404 }
+      )
+    }
+
+    const pricingOption = service.pricingOptions[0] || null
+
+    if (!pricingOption && !validatedData.packageId) {
+      return NextResponse.json(
+        { error: 'Opción de precio no encontrada' },
+        { status: 404 }
+      )
+    }
+
     // Auto-apply first reservation discount if applicable
     let finalCouponId = validatedData.couponId
 
     if (!finalCouponId) {
-      // Check if user has previous reservations
       const previousReservations = await prisma.reservation.count({
         where: { userId: authenticatedUser.id },
       })
 
-      // If no previous reservations, apply first reservation discount
       if (previousReservations === 0) {
         const firstReservationCoupon = await prisma.coupon.findFirst({
           where: {
@@ -75,6 +171,22 @@ export async function POST(request: Request) {
       }
     }
 
+    // Fetch coupon if exists
+    const coupon = finalCouponId
+      ? await prisma.coupon.findUnique({ where: { id: finalCouponId } })
+      : null
+
+    // Calculate base price
+    const basePrice = await calculatePrice(
+      service,
+      pricingOption,
+      validatedData.pricingData,
+      service.formulaVariables
+    )
+
+    // Apply discount
+    const finalPrice = applyDiscount(basePrice, coupon)
+
     // Create the reservation
     const reservation = await prisma.reservation.create({
       data: {
@@ -84,6 +196,9 @@ export async function POST(request: Request) {
         serviceId: validatedData.serviceId,
         addressId: validatedData.addressId,
         packageId: validatedData.packageId,
+        pricingOptionId: validatedData.pricingOptionId,
+        pricingData: validatedData.pricingData,
+        finalPrice,  // Calculado en el backend
         couponId: finalCouponId,
       },
       include: {
@@ -91,6 +206,7 @@ export async function POST(request: Request) {
         service: true,
         address: true,
         package: true,
+        pricingOption: true,
         coupon: true,
       },
     })
