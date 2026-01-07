@@ -11,7 +11,9 @@ import {
   Menu,
   X,
   LogOut,
+  Briefcase,
 } from 'lucide-react'
+import { ROUTES } from '@/lib/routes'
 
 interface SidebarProps {
   userName?: string
@@ -20,22 +22,27 @@ interface SidebarProps {
 const menuItems = [
   {
     label: 'Dashboard',
-    href: '/dashboard',
+    href: ROUTES.DASHBOARD,
     icon: LayoutDashboard,
   },
   {
     label: 'Reservas',
-    href: '/dashboard/reservas',
+    href: ROUTES.DASHBOARD_RESERVAS,
     icon: Calendar,
   },
   {
+    label: 'Servicios',
+    href: ROUTES.DASHBOARD_SERVICIOS,
+    icon: Briefcase,
+  },
+  {
     label: 'Clientes',
-    href: '/dashboard/clientes',
+    href: ROUTES.DASHBOARD_CLIENTES,
     icon: Users,
   },
   {
     label: 'Aliados',
-    href: '/dashboard/aliados',
+    href: ROUTES.DASHBOARD_ALIADOS,
     icon: UserCheck,
   },
 ]
@@ -103,7 +110,7 @@ export default function Sidebar({ userName }: SidebarProps) {
           {/* Back to Site */}
           <div className="p-4 border-b border-gray-200">
             <Link
-              href="/"
+              href={ROUTES.APP_HOME}
               className="flex items-center gap-3 px-4 py-3 rounded-lg
                 text-gray-700 hover:bg-gray-100 hover:text-gray-900
                 transition-colors duration-200"
@@ -165,7 +172,7 @@ export default function Sidebar({ userName }: SidebarProps) {
                   })
 
                   if (response.ok) {
-                    window.location.href = '/login'
+                    window.location.href = ROUTES.LANDING
                   } else {
                     console.error('Error al cerrar sesión')
                   }

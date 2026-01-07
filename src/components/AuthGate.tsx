@@ -3,6 +3,7 @@
 import { useEffect } from 'react'
 import { useRouter } from 'next/navigation'
 import { useAuth } from './AuthProvider'
+import { ROUTES } from '@/lib/routes'
 
 export function AuthGate({ children }: { children: React.ReactNode }) {
   const router = useRouter()
@@ -10,7 +11,7 @@ export function AuthGate({ children }: { children: React.ReactNode }) {
 
   useEffect(() => {
     if (!loading && !user && !isGuest) {
-      router.push('/login')
+      router.push(ROUTES.LOGIN)
     }
   }, [user, isGuest, loading, router])
 

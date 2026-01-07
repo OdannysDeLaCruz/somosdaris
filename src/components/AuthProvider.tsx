@@ -4,6 +4,7 @@ import { createContext, useContext, useState, useEffect, ReactNode } from 'react
 import { useRouter, usePathname } from 'next/navigation'
 import { User, Role } from '@prisma/client'
 import { fetchWithAuth } from '@/lib/fetchWithAuth'
+import { ROUTES } from '@/lib/routes'
 
 interface UserWithReservations extends User {
   role: Role
@@ -65,7 +66,7 @@ export function AuthProvider({ children }: { children: ReactNode }) {
   // Redirect to complete profile if user is authenticated but profile is incomplete
   useEffect(() => {
     // Skip if still loading or already on login page
-    if (loading || pathname === '/login') {
+    if (loading || pathname === ROUTES.LOGIN) {
       return
     }
 
@@ -77,7 +78,7 @@ export function AuthProvider({ children }: { children: ReactNode }) {
     // If user is authenticated but doesn't have complete profile (name or lastname missing)
     if (user && (!user.name || !user.lastname)) {
       // Redirect to login page with current URL as returnUrl
-      router.push(`/login?returnUrl=${encodeURIComponent(pathname)}`)
+      router.push(`${ROUTES.LOGIN}?returnUrl=${encodeURIComponent(pathname)}`)
     }
   }, [user, loading, isGuest, pathname, router])
 

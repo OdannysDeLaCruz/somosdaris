@@ -4,6 +4,7 @@ import Link from 'next/link'
 import { useEffect, useRef } from 'react'
 import { useRouter } from 'next/navigation'
 import { useAuth } from './AuthProvider'
+import { ROUTES } from '@/lib/routes'
 
 interface UserMenuProps {
   isOpen: boolean
@@ -77,7 +78,7 @@ export default function UserMenu({ isOpen, onClose }: UserMenuProps) {
         {user ? (
           <>
             <Link
-              href="/perfil"
+              href={ROUTES.PERFIL}
               className="flex items-center gap-3 px-4 py-2.5 hover:bg-gray-100 dark:hover:bg-gray-800 transition-colors text-gray-700 dark:text-gray-200"
               onClick={onClose}
             >
@@ -95,7 +96,7 @@ export default function UserMenu({ isOpen, onClose }: UserMenuProps) {
               Mi Perfil
             </Link>
             <Link
-              href="/configuracion"
+              href={ROUTES.CONFIGURACION}
               className="flex items-center gap-3 px-4 py-2.5 hover:bg-gray-100 dark:hover:bg-gray-800 transition-colors text-gray-700 dark:text-gray-200"
               onClick={onClose}
             >
@@ -118,7 +119,7 @@ export default function UserMenu({ isOpen, onClose }: UserMenuProps) {
               <>
                 <div className="border-t border-gray-200 dark:border-gray-800 my-2"></div>
                 <Link
-                  href="/dashboard"
+                  href={ROUTES.DASHBOARD}
                   className="flex items-center gap-3 px-4 py-2.5 hover:bg-blue-50 dark:hover:bg-blue-900/20 transition-colors text-blue-600 dark:text-blue-400"
                   onClick={onClose}
                 >
@@ -143,7 +144,8 @@ export default function UserMenu({ isOpen, onClose }: UserMenuProps) {
               onClick={async () => {
                 await logout()
                 onClose()
-                router.push('/')
+                // Use window.location to force a full page navigation and avoid AuthRedirect hooks
+                window.location.href = ROUTES.LANDING
               }}
             >
               <svg
@@ -162,7 +164,7 @@ export default function UserMenu({ isOpen, onClose }: UserMenuProps) {
           </>
         ) : (
           <Link
-            href="/login"
+            href={ROUTES.LOGIN}
             className="flex items-center gap-3 px-4 py-2.5 hover:bg-gray-100 dark:hover:bg-gray-800 transition-colors text-gray-700 dark:text-gray-200 w-full"
             onClick={onClose}
           >

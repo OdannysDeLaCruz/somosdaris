@@ -4,6 +4,7 @@ import { useEffect } from 'react'
 import { useRouter } from 'next/navigation'
 import { useAuth } from './AuthProvider'
 import Image from 'next/image'
+import { ROUTES } from '@/lib/routes'
 
 interface AuthRedirectProps {
   children: React.ReactNode
@@ -16,7 +17,7 @@ export function AuthRedirect({ children }: AuthRedirectProps) {
   // Redirect to login if user is not authenticated and not in guest mode
   useEffect(() => {
     if (!loading && !user && !isGuest) {
-      router.push('/login')
+      router.push(`${ROUTES.LOGIN}?returnUrl=${window.location.pathname}`)
     }
   }, [user, loading, isGuest, router])
 
@@ -24,7 +25,7 @@ export function AuthRedirect({ children }: AuthRedirectProps) {
   if (loading) {
     return (
       <div className="min-h-screen bg-zinc-50 dark:bg-black flex items-center justify-center">
-        <Image src="/images/logo-azul.png" alt="Loading" width={200} height={200} loading="eager" style={{ width: 'auto', height: 'auto' }} />
+        <Image src="/images/logo-azul.png" alt="Loading" width={100} height={100} loading="eager" style={{ width: 'auto', height: 'auto' }} />
       </div>
     )
   }
