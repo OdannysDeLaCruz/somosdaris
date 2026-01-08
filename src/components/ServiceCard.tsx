@@ -25,7 +25,7 @@ export default function ServiceCard({ id, name, description, image, comingSoon =
             alt={name}
             width={100}
             height={100}
-            className={comingSoon ? "opacity-50" : ""}
+            className={[comingSoon ? "opacity-50" : "", "min-w-14 min-h-14 md:min-w-20 md:min-h-20"].join(" ")}
             loading="eager"
             unoptimized
           />
@@ -33,7 +33,7 @@ export default function ServiceCard({ id, name, description, image, comingSoon =
       </div>
       <div className="p-3">
         <div className="flex items-center gap-2 mb-1 relative">
-          <h2 className="text-xl font-bold text-zinc-900 dark:text-zinc-50">
+          <h2 className="text-base md:text-xl leading-5 font-bold text-zinc-900 dark:text-zinc-50 mb-2 md:mb-4">
             {name}
           </h2>
           {/* {comingSoon && (
@@ -42,7 +42,7 @@ export default function ServiceCard({ id, name, description, image, comingSoon =
             </span>
           )} */}
         </div>
-        <p className="text-base leading-none text-zinc-600 dark:text-zinc-400 mb-4 line-clamp-2">
+        <p className="text-sm md:text-base leading-none text-zinc-600 dark:text-zinc-400 mb-4 line-clamp-3 md:line-clamp-2">
           {description}
         </p>
       </div>

@@ -279,12 +279,12 @@ export default function ReservarPage() {
   }
 
   return (
-    <div className="min-h-screen bg-zinc-50 dark:bg-black pb-32">
+    <div className="min-h-screen bg-zinc-50 dark:bg-black pt-8 pb-32">
       <div className="max-w-4xl mx-auto px-4 sm:px-6 lg:px-8 py-4">
         {/* Back Button */}
         {step === 1 ? (
           <Link
-            href="/"
+            href="/app"
             className="text-xl font-bold inline-flex items-center gap-2 text-black transition-colors mb-6"
           >
             <ArrowLeft className="w-9 h-9 mr-2 bg-blue-100 p-2 rounded-full" />
@@ -313,25 +313,28 @@ export default function ReservarPage() {
             />
 
             {/* What's Included Button */}
-            <div className="flex justify-center">
-              <button
-                onClick={() => setShowIncludesModal(true)}
-                className="inline-flex items-center gap-2 px-6 py-3 bg-gradient-to-r from-blue-500 to-blue-600 text-white rounded-full hover:from-blue-600 hover:to-blue-700 font-semibold shadow-lg hover:shadow-xl transition-all transform hover:scale-105"
-              >
-                <svg
-                  className="w-5 h-5"
-                  fill="none"
-                  strokeLinecap="round"
-                  strokeLinejoin="round"
-                  strokeWidth="2"
-                  viewBox="0 0 24 24"
-                  stroke="currentColor"
+            {service.name.toLowerCase().includes('hogar') && (
+              <div className="flex justify-center">
+                <button
+                  onClick={() => setShowIncludesModal(true)}
+                  className="inline-flex items-center gap-2 px-6 py-3 bg-gradient-to-r from-blue-500 to-blue-600 text-white rounded-full hover:from-blue-600 hover:to-blue-700 font-semibold shadow-lg hover:shadow-xl transition-all transform hover:scale-105"
                 >
-                  <path d="M13 16h-1v-4h-1m1-4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z"></path>
-                </svg>
-                ¿Qué incluye el servicio?
-              </button>
-            </div>
+                  <svg
+                    className="w-5 h-5"
+                    fill="none"
+                    strokeLinecap="round"
+                    strokeLinejoin="round"
+                    strokeWidth="2"
+                    viewBox="0 0 24 24"
+                    stroke="currentColor"
+                  >
+                    <path d="M13 16h-1v-4h-1m1-4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z"></path>
+                  </svg>
+                  ¿Qué incluye el servicio?
+                </button>
+              </div>
+            )}
+
 
             <DateTimePicker
               selectedDate={selectedDate}

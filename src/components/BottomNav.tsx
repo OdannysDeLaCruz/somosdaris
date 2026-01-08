@@ -11,7 +11,7 @@ export default function BottomNav() {
   // Don't show bottom nav on these pages
   // const nonVisiblePages = ['/app/reservar', '/app/confirmacion', '/login', '/app/dashboard'];
 
-  const hideBottomNav = pathname?.includes('/app/reservar') || pathname?.includes('/app/confirmacion') || pathname?.includes('/login') || pathname?.includes('/app/dashboard') || pathname === '/'
+  const hideBottomNav = pathname?.includes('/reservar') || pathname?.includes('/app/confirmacion') || pathname?.includes('/login') || pathname?.includes('/app/dashboard') || pathname === '/'
 
   if (hideBottomNav) return null
 

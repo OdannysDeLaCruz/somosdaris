@@ -3,6 +3,7 @@
 import { useState, useMemo, useEffect } from 'react'
 import { PricingSelection } from '../PricingSelector'
 import { FormulaVariable, PricingOption } from '@/types'
+import { MinusIcon, PlusIcon } from 'lucide-react'
 
 interface FormulaBasedSelectorProps {
   options: PricingOption[]
@@ -29,6 +30,21 @@ export default function FormulaBasedSelector({
     return defaults
   })
 
+  const handlerDecrement = (varName: string, value: number, minValue: number) => {
+    // console.log("Variables", variables)
+    if (Number(selections[varName]) > minValue) {
+      setSelections(prev => ({ ...prev, [varName]: Number(value) - 1 }))
+      // console.log("Selections", selections)
+    }
+  }
+  
+  const handlerIncrement = (varName: string, value: number, maxValue: number) => {
+    if (Number(selections[varName]) < Number(maxValue)) {
+      setSelections(prev => ({ ...prev, [varName]: Number(value) + 1 }))
+      // console.log("Selections", selections)
+    }
+  }
+
   // Calcular precio y generar display name usando useMemo
   const { calculatedPrice, displayName } = useMemo(() => {
     if (options.length === 0) {
@@ -48,9 +64,13 @@ export default function FormulaBasedSelector({
           // Para cantidad: multiplicar precio base
           total = basePrice * numValue
         } else if (variable.name === 'altura') {
-          // Para altura: agregar ajuste por cada piso adicional
-          const adjustment = Number(variable.multiplier) * (numValue - 1)
-          total += adjustment
+          // console.log('ALTURA', variable)
+          // console.log('SELECTION', selections)
+          // if (Number(selections.altura) > 2) {
+          //   // Para altura: agregar ajuste por cada piso adicional
+          //   const adjustment = Number(variable.multiplier) * (Number(selections.altura) - 2)
+          //   total += adjustment
+          // }
         }
       }
     })
@@ -117,28 +137,26 @@ export default function FormulaBasedSelector({
           )}
 
           {variable.type === 'number' && (
-            <input
-              type="number"
-              min={variable.minValue || undefined}
-              max={variable.maxValue || undefined}
-              value={selections[variable.name] || variable.defaultValue || 1}
-              onChange={(e) => handleVariableChange(variable.name, parseInt(e.target.value))}
-              className="w-full px-4 py-3 border border-zinc-300 dark:border-zinc-700 rounded-lg focus:ring-2 focus:ring-blue-500 bg-white dark:bg-zinc-800 text-zinc-900 dark:text-zinc-50"
-            />
+            <div className="flex justify-center gap-2 md:max-w-64">
+              <button onClick={() => handlerDecrement(variable.name, Number(selections[variable.name] || variable.defaultValue || 1), Number(variable.minValue || 1))} className="px-4 py-3 w-16 flex justify-center items-center rounded-lg bg-blue-600 text-white">
+                <MinusIcon className="w-6 h-6" />
+              </button>
+              <input
+                type="number"
+                min={variable.minValue || undefined}
+                max={variable.maxValue || undefined}
+                value={selections[variable.name] || variable.defaultValue || 1}
+                onChange={(e) => handleVariableChange(variable.name, parseInt(e.target.value))}
+                className="w-full px-4 py-3 text-xl font-bold border border-zinc-300 dark:border-zinc-700 rounded-lg focus:ring-2 focus:ring-blue-500 bg-white dark:bg-zinc-800 text-zinc-900 dark:text-zinc-50 text-center disabled:bg-white"
+                disabled
+              />
+              <button onClick={() => handlerIncrement(variable.name, Number(selections[variable.name] || variable.defaultValue || 1), Number(variable.maxValue || 1))} className="px-4 py-3 w-16 flex justify-center items-center rounded-lg bg-blue-600 text-white">
+                <PlusIcon className="w-6 h-6" /> 
+              </button>
+            </div>
           )}
         </div>
       ))}
-
-      <div className="bg-blue-50 dark:bg-blue-900/20 border border-blue-200 dark:border-blue-800 rounded-lg p-6">
-        <div className="flex justify-between items-center">
-          <span className="text-lg font-semibold text-zinc-900 dark:text-zinc-50">
-            Precio total:
-          </span>
-          <span className="text-3xl font-bold text-blue-600 dark:text-blue-400">
-            ${calculatedPrice.toLocaleString('es-CO')}
-          </span>
-        </div>
-      </div>
     </div>
   )
 }

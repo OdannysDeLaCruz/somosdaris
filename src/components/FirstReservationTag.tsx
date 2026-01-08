@@ -1,6 +1,5 @@
 'use client'
 
-// import Image from 'next/image'
 import { useAuth } from './AuthProvider'
 
 export default function FirstReservationTag() {
@@ -14,15 +13,7 @@ export default function FirstReservationTag() {
 
   return (
     <div className="flex items-center">
-      {/* <Image
-        src="/images/tag-desc.png"
-        alt="Tienes 10% de descuento"
-        width={120}
-        height={40}
-        className="object-contain"
-        priority
-      /> */}
-      <div className="text-[10px] font-medium text-green-600 bg-green-100 px-2 py-1 rounded-full">
+      <div className="text-[10px] md:text-[12px] font-medium text-green-600 bg-green-100 px-2 py-1 rounded-full">
         🎁 ¡DESC 10% activo!
       </div>
     </div>

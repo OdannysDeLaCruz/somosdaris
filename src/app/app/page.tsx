@@ -1,9 +1,10 @@
 import { prisma } from '@/lib/prisma'
-import Image from 'next/image'
+// import Image from 'next/image'
 import type { Metadata } from 'next'
 import { AuthRedirect } from '@/components/AuthRedirect'
 import FirstReservationBanner from '@/components/FirstReservationBanner'
 import ServiceCard from '@/components/ServiceCard'
+import FirstReservationTag from '@/components/FirstReservationTag'
 
 export const metadata: Metadata = {
   title: "SomosDaris - Servicios",
@@ -27,30 +28,18 @@ export default async function Home() {
     }
   })
 
-  console.log('Active Services:', activesServices);
-  console.log('Coming Soon Services:', comingSoonServices);
   return (
     <AuthRedirect>
       {/* First Reservation Banner */}
       <FirstReservationBanner />
 
       <div className="min-h-screen bg-zinc-50 dark:bg-black">
-        <main className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-10">
-          {/* Header */}
-          <div className="flex justify-center text-center mb-12">
-            <Image
-              src="/images/logo-azul.png"
-              alt="Daris"
-              width={120}
-              height={60}
-              loading="eager"
-              fetchPriority='high'
-              style={{ height: 'auto', width: 'auto' }}
-            />
-          </div>
-
+        <main className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-10 mb-24">
+          {/* First Reservation Discount Tag */}
+          <FirstReservationTag />
+          
           <div>
-            <p className="text-xl font-bold text-center text-gray-800 mb-8">
+            <p className="text-xl font-bold text-center text-gray-800 mb-8 mt-8">
               ¿En que podemos ayudarte hoy?
             </p>
           </div>

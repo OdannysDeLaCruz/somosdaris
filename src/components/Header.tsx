@@ -4,8 +4,8 @@ import { useState } from 'react'
 import { usePathname } from 'next/navigation'
 import Sidebar from './Sidebar'
 import UserMenu from './UserMenu'
-import FirstReservationTag from './FirstReservationTag'
 import { useAuth } from './AuthProvider'
+import Image from 'next/image'
 
 export default function Header() {
   const [isSidebarOpen, setIsSidebarOpen] = useState(false)
@@ -21,7 +21,7 @@ export default function Header() {
   return (
     <>
       <header className="fixed top-0 left-0 right-0 z-50 bg-white border-b border-gray-200 dark:bg-gray-900 dark:border-gray-800">
-        <div className="flex items-center justify-between px-4 py-3">
+        <div className="flex md:grid md:grid-cols-3 items-center justify-center px-4 py-3">
           {/* Left side: Hamburger Menu + Discount Tag */}
           <div className="flex items-center gap-3">
             {/* Hamburger Menu Button - Only visible on desktop */}
@@ -42,9 +42,11 @@ export default function Header() {
                 <path d="M4 6h16M4 12h16M4 18h16"></path>
               </svg>
             </button>
+          </div>
 
-            {/* First Reservation Discount Tag */}
-            <FirstReservationTag />
+          {/* Logo */}
+          <div className="col-span-1 flex justify-start md:justify-center">
+            <Image src="/images/logo-azul.png" alt="Logo" width={100} height={100} />
           </div>
 
           {/* User Profile Button */}
