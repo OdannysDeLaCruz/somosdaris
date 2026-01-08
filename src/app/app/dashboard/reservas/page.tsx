@@ -187,7 +187,7 @@ export default async function ReservasPage() {
                     </td>
                     <td className="px-6 py-4 whitespace-nowrap text-sm">
                       <Link
-                        href={`/dashboard/reservas/${reservation.id}`}
+                        href={`/app/dashboard/reservas/${reservation.id}`}
                         className="text-blue-600 hover:text-blue-800 font-medium"
                       >
                         Ver detalles

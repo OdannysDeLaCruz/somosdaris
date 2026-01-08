@@ -300,16 +300,30 @@ export default function ReservationDetail({ reservation: initialReservation, all
         )}
 
         {/* Datos de Pricing (para fórmulas) */}
-        {/* {reservation.pricingData && (
+        {reservation.pricingData && typeof reservation.pricingData === 'object' && (
           <div className="p-4 hover:bg-gray-50 transition-colors">
-            <label className="block text-sm font-medium text-gray-500 mb-1">
-              Detalles
+            <label className="block text-sm font-medium text-gray-500 mb-2">
+              Detalles del Servicio
             </label>
-            <p className="text-sm text-gray-900 font-mono">
-              {JSON.stringify(reservation.pricingData, null, 2)}
-            </p>
+            <div className="space-y-2">
+              {Object.entries(reservation.pricingData as Record<string, any>).map(([key, value]) => {
+                // Mapear los nombres de variables a etiquetas legibles
+                const labels: Record<string, string> = {
+                  cantidad: 'Número de tanques',
+                  altura: 'Piso donde está el tanque',
+                }
+                const label = labels[key] || key
+
+                return (
+                  <div key={key} className="flex justify-between items-center">
+                    <span className="text-sm text-gray-600">{label}:</span>
+                    <span className="text-base text-gray-900 font-medium">{value}</span>
+                  </div>
+                )
+              })}
+            </div>
           </div>
-        )} */}
+        )}
 
         {/* Precio Base */}
         {/* <div className="p-4 hover:bg-gray-50 transition-colors">
