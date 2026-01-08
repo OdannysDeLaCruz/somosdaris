@@ -117,25 +117,30 @@ export function DateTimePicker({ onSelect, selectedDate, onSelectedDateFormated,
 
   return (
     <div className="space-y-4">
-      <h3 className="text-2xl font-bold text-black">
-        Fecha del servicio
-      </h3>
 
       <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
         {/* Calendario */}
-        <div className="bg-blue-200 dark:bg-zinc-900 p-2 rounded-lg border border-zinc-200 dark:border-zinc-700">
-          <Calendar
-            mode="single"
-            selected={selected}
-            onSelect={handleDateSelect}
-            disabled={{ before: new Date() }}
-            locale={es}
-            className="rounded-md w-full"
-            classNames={{
-              caption_label: "text-xl font-bold",
-              day_button: "text-xl",
-            }}
-          />
+        <div>
+          <h3 className="text-2xl font-bold text-black">
+            Fecha del servicio
+          </h3>
+          <div className='mb-6'></div>
+          
+          <div className="bg-blue-200 dark:bg-zinc-900 p-2 rounded-lg border border-zinc-200 dark:border-zinc-700">
+            <Calendar
+              mode="single"
+              selected={selected}
+              onSelect={handleDateSelect}
+              disabled={{ before: new Date() }}
+              locale={es}
+              className="rounded-md w-full"
+              classNames={{
+                caption_label: "text-xl font-bold",
+                day_button: "text-xl",
+              }}
+            />
+          </div>
+
         </div>
 
         {/* Selector de hora */}

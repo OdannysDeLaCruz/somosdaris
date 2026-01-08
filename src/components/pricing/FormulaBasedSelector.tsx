@@ -111,52 +111,54 @@ export default function FormulaBasedSelector({
   }
 
   return (
-    <div className="space-y-6">
-      <h3 className="text-2xl font-bold text-black dark:text-zinc-50">
+    <div className="space-y-10 mb-16">
+      {/* <h3 className="text-2xl font-bold text-black dark:text-zinc-50">
         Configura tu servicio
-      </h3>
+      </h3> */}
 
-      {variables.map((variable: FormulaVariable) => (
-        <div key={variable.id} className="space-y-2">
-          <label className="block text-lg font-semibold text-zinc-900 dark:text-zinc-50">
-            {variable.label}
-          </label>
+      <div className='flex flex-col lg:grid lg:grid-cols-2 gap-10'>
+        {variables.map((variable: FormulaVariable) => (
+          <div key={variable.id} className="space-y-2 w-full">
+            <label className="block text-2xl font-semibold text-black">
+              {variable.label}
+            </label>
 
-          {variable.type === 'select' && variable.options && (
-            <select
-              value={selections[variable.name] || variable.defaultValue || ''}
-              onChange={(e) => handleVariableChange(variable.name, e.target.value)}
-              className="w-full px-4 py-3 border border-zinc-300 dark:border-zinc-700 rounded-lg focus:ring-2 focus:ring-blue-500 bg-white dark:bg-zinc-800 text-zinc-900 dark:text-zinc-50"
-            >
-              {variable.options?.map((opt) => (
-                <option key={opt.value} value={opt.value}>
-                  {opt.label}
-                </option>
-              ))}
-            </select>
-          )}
+            {variable.type === 'select' && variable.options && (
+              <select
+                value={selections[variable.name] || variable.defaultValue || ''}
+                onChange={(e) => handleVariableChange(variable.name, e.target.value)}
+                className="w-full px-4 py-3 border border-zinc-300 dark:border-zinc-700 rounded-lg focus:ring-2 focus:ring-blue-500 bg-white dark:bg-zinc-800 text-zinc-900 dark:text-zinc-50"
+              >
+                {variable.options?.map((opt) => (
+                  <option key={opt.value} value={opt.value}>
+                    {opt.label}
+                  </option>
+                ))}
+              </select>
+            )}
 
-          {variable.type === 'number' && (
-            <div className="flex justify-center gap-2 md:max-w-64">
-              <button onClick={() => handlerDecrement(variable.name, Number(selections[variable.name] || variable.defaultValue || 1), Number(variable.minValue || 1))} className="px-4 py-3 w-16 flex justify-center items-center rounded-lg bg-blue-600 text-white">
-                <MinusIcon className="w-6 h-6" />
-              </button>
-              <input
-                type="number"
-                min={variable.minValue || undefined}
-                max={variable.maxValue || undefined}
-                value={selections[variable.name] || variable.defaultValue || 1}
-                onChange={(e) => handleVariableChange(variable.name, parseInt(e.target.value))}
-                className="w-full px-4 py-3 text-xl font-bold border border-zinc-300 dark:border-zinc-700 rounded-lg focus:ring-2 focus:ring-blue-500 bg-white dark:bg-zinc-800 text-zinc-900 dark:text-zinc-50 text-center disabled:bg-white"
-                disabled
-              />
-              <button onClick={() => handlerIncrement(variable.name, Number(selections[variable.name] || variable.defaultValue || 1), Number(variable.maxValue || 1))} className="px-4 py-3 w-16 flex justify-center items-center rounded-lg bg-blue-600 text-white">
-                <PlusIcon className="w-6 h-6" /> 
-              </button>
-            </div>
-          )}
-        </div>
-      ))}
+            {variable.type === 'number' && (
+              <div className="flex justify-center gap-2">
+                <button onClick={() => handlerDecrement(variable.name, Number(selections[variable.name] || variable.defaultValue || 1), Number(variable.minValue || 1))} className="px-4 py-3 w-16 flex justify-center items-center rounded-lg bg-blue-600 text-white">
+                  <MinusIcon className="w-6 h-6" />
+                </button>
+                <input
+                  type="number"
+                  min={variable.minValue || undefined}
+                  max={variable.maxValue || undefined}
+                  value={selections[variable.name] || variable.defaultValue || 1}
+                  onChange={(e) => handleVariableChange(variable.name, parseInt(e.target.value))}
+                  className="w-full px-4 py-3 text-xl font-bold border border-zinc-300 dark:border-zinc-700 rounded-lg focus:ring-2 focus:ring-blue-500 bg-white dark:bg-zinc-800 text-zinc-900 dark:text-zinc-50 text-center disabled:bg-white"
+                  disabled
+                />
+                <button onClick={() => handlerIncrement(variable.name, Number(selections[variable.name] || variable.defaultValue || 1), Number(variable.maxValue || 1))} className="px-4 py-3 w-16 flex justify-center items-center rounded-lg bg-blue-600 text-white">
+                  <PlusIcon className="w-6 h-6" /> 
+                </button>
+              </div>
+            )}
+          </div>
+        ))}
+      </div>
     </div>
   )
 }
