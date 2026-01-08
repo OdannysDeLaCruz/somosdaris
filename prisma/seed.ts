@@ -60,9 +60,9 @@ async function main() {
 
   const cleaningService = await prisma.service.create({
     data: {
-      name: 'Limpieza',
-      description: 'Servicio profesional de limpieza para tu hogar u oficina. Incluye limpieza profunda, organización y sanitización.',
-      image: '/images/limpieza.jpg',
+      name: 'Limpieza del Hogar',
+      description: 'Servicio de limpieza profesional para tu hogar u oficina.',
+      image: '/images/services/limpieza.gif',
       comingSoon: false,
       pricingModel: 'PACKAGE_BASED',
     },
@@ -76,19 +76,19 @@ async function main() {
       {
         description: 'Paquete Básico',
         hours: 4,
-        price: 91000,
+        price: 78000,
         restriction: 'Perfecto para casas pequeñas (1-2 habitaciones)',
       },
       {
         description: 'Paquete Estándar',
         hours: 6,
-        price: 117000,
+        price: 98000,
         restriction: 'Para casas medianas (2-3 habitaciones)',
       },
       {
         description: 'Paquete Premium',
         hours: 8,
-        price: 137000,
+        price: 115000,
         restriction: 'Para casas grandes (4+ habitaciones)',
       },
     ],
@@ -103,7 +103,7 @@ async function main() {
         serviceId: cleaningService.id,
         name: '4 Horas',
         description: 'Perfecto para casas pequeñas (1-2 habitaciones)',
-        basePrice: 91000,
+        basePrice: 78000,
         metadata: { hours: 4 },
         displayOrder: 4,
         isActive: true,
@@ -112,7 +112,7 @@ async function main() {
         serviceId: cleaningService.id,
         name: '6 Horas',
         description: 'Para casas medianas (2-3 habitaciones)',
-        basePrice: 117000,
+        basePrice: 98000,
         metadata: { hours: 6 },
         displayOrder: 6,
         isActive: true,
@@ -121,7 +121,7 @@ async function main() {
         serviceId: cleaningService.id,
         name: '8 Horas',
         description: 'Para casas grandes (4+ habitaciones)',
-        basePrice: 137000,
+        basePrice: 115000,
         metadata: { hours: 8 },
         displayOrder: 8,
         isActive: true,
@@ -138,8 +138,8 @@ async function main() {
   const tankService = await prisma.service.create({
     data: {
       name: 'Limpieza de Tanques Elevados',
-      description: 'Servicio especializado en limpieza y desinfección de tanques elevados de agua potable. Incluye lavado, desinfección y certificado sanitario.',
-      image: '/images/tanques.jpg',
+      description: 'Limpieza y desinfección profesional de tanques de agua elevados.',
+      image: '/images/services/tanques.webp',
       comingSoon: false,
       pricingModel: 'FORMULA_BASED',
     },
@@ -151,7 +151,7 @@ async function main() {
   await prisma.pricingOption.create({
     data: {
       serviceId: tankService.id,
-      name: 'Limpieza de Tanque',
+      name: 'Limpieza de Tanques Elevados',
       description: 'Precio base por tanque, ajustable según cantidad y altura',
       basePrice: 50000,
       displayOrder: 1,
@@ -190,6 +190,20 @@ async function main() {
   })
 
   console.log('✅ Variables de fórmula para Tanques creadas')
+
+  // ========================================
+  // SERVICIO 3: LAVADO EN SECO
+  // ========================================
+
+  await prisma.service.create({
+    data: {
+      name: 'Lavado en Seco',
+      description: 'Limpieza de sofas, sillas, colchones con lavado en seco.',
+      image: '/images/services/lavado-seco.png',
+      comingSoon: true,
+      pricingModel: 'PACKAGE_BASED',
+    },
+  })
 
   // Crear cupón de primera reserva (10% de descuento automático)
   const firstReservationCoupon = await prisma.coupon.create({
