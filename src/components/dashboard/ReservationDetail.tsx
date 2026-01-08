@@ -11,6 +11,18 @@ import { ROUTES } from '@/lib/routes'
 type ReservationStatus = 'pending' | 'completed' | 'cancelled'
 type ReservationType = 'home' | 'office'
 
+interface PricingItem {
+  name: string
+  quantity: number
+  price: number
+}
+
+interface PricingData {
+  cantidad?: number
+  altura?: number
+  items?: PricingItem[]
+}
+
 interface AllyType {
   id: string
   name: string | null
@@ -27,7 +39,7 @@ interface ReservationDetailProps {
     status: ReservationStatus
     createdAt: Date
     finalPrice: number
-    pricingData?: unknown
+    pricingData?: PricingData
     user: {
       id: string
       name: string | null
@@ -300,27 +312,35 @@ export default function ReservationDetail({ reservation: initialReservation, all
         )}
 
         {/* Datos de Pricing (para fórmulas) */}
-        {reservation.pricingData && typeof reservation.pricingData === 'object' && (
+        {reservation.pricingData && (
           <div className="p-4 hover:bg-gray-50 transition-colors">
             <label className="block text-sm font-medium text-gray-500 mb-2">
               Detalles del Servicio
             </label>
             <div className="space-y-2">
-              {Object.entries(reservation.pricingData as Record<string, any>).map(([key, value]) => {
-                // Mapear los nombres de variables a etiquetas legibles
-                const labels: Record<string, string> = {
-                  cantidad: 'Número de tanques',
-                  altura: 'Piso donde está el tanque',
-                }
-                const label = labels[key] || key
-
-                return (
-                  <div key={key} className="flex justify-between items-center">
-                    <span className="text-sm text-gray-600">{label}:</span>
-                    <span className="text-base text-gray-900 font-medium">{value}</span>
-                  </div>
-                )
-              })}
+              {reservation.pricingData.cantidad !== undefined && (
+                <div className="flex justify-between items-center">
+                  <span className="text-sm text-gray-600">Número de tanques:</span>
+                  <span className="text-base text-gray-900 font-medium">{reservation.pricingData.cantidad}</span>
+                </div>
+              )}
+              {reservation.pricingData.altura !== undefined && (
+                <div className="flex justify-between items-center">
+                  <span className="text-sm text-gray-600">Piso donde está el tanque:</span>
+                  <span className="text-base text-gray-900 font-medium">{reservation.pricingData.altura}</span>
+                </div>
+              )}
+              {reservation.pricingData.items && reservation.pricingData.items.length > 0 && (
+                <div className="space-y-1">
+                  <span className="text-sm text-gray-600">Items:</span>
+                  {reservation.pricingData.items.map((item, index) => (
+                    <div key={index} className="flex justify-between items-center ml-4">
+                      <span className="text-sm text-gray-900">{item.name} (x{item.quantity})</span>
+                      <span className="text-base text-gray-900 font-medium">${item.price.toLocaleString('es-CO')}</span>
+                    </div>
+                  ))}
+                </div>
+              )}
             </div>
           </div>
         )}

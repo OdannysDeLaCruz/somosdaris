@@ -3,6 +3,49 @@ import { prisma } from '@/lib/prisma'
 import { getAccessTokenFromHeaders } from '@/lib/auth-cookies'
 import { getUserFromAccessToken } from '@/lib/session'
 import { z } from 'zod'
+import { sendAdminReservationNotification } from '@/lib/email'
+import { format } from 'date-fns'
+import { es } from 'date-fns/locale'
+import { Decimal } from '@prisma/client/runtime/library'
+
+// Interfaces para tipos de pricing
+interface PricingItem {
+  name: string
+  quantity: number
+  price: number
+}
+
+interface PricingData {
+  cantidad?: number
+  altura?: number
+  items?: PricingItem[]
+}
+
+interface PricingOption {
+  basePrice: Decimal
+}
+
+interface FormulaVariable {
+  name: string
+  multiplier: Decimal | null
+}
+
+interface Coupon {
+  discountType: string
+  discountAmount: Decimal
+}
+
+const pricingItemSchema = z.object({
+  name: z.string(),
+  quantity: z.number(),
+  price: z.number(),
+})
+
+const pricingDataSchema = z.object({
+  cantidad: z.number().optional(),
+  altura: z.number().optional(),
+  items: z.array(pricingItemSchema).optional(),
+})
 
 const reservationSchema = z.object({
   type: z.enum(['home', 'office']).default('home'),
@@ -10,7 +53,7 @@ const reservationSchema = z.object({
   serviceId: z.string(),
   packageId: z.string().optional(),        // Legacy
   pricingOptionId: z.string().optional(),
-  pricingData: z.any().optional(),
+  pricingData: pricingDataSchema.optional(),
   addressId: z.string().min(1, 'La dirección es requerida'),
   couponId: z.string().optional(),
   // NOTE: finalPrice NO se acepta - se calcula en el backend
@@ -19,9 +62,9 @@ const reservationSchema = z.object({
 // Función para calcular precio según pricing model
 async function calculatePrice(
   service: { pricingModel: string },
-  pricingOption: { basePrice: any } | null,
-  pricingData: any,
-  formulaVariables: Array<{ name: string; multiplier: any }> | null
+  pricingOption: PricingOption | null,
+  pricingData: PricingData | undefined,
+  formulaVariables: FormulaVariable[] | null
 ): Promise<number> {
   if (!pricingOption) {
     throw new Error('Pricing option no encontrada')
@@ -40,9 +83,9 @@ async function calculatePrice(
 
     let total = basePrice
     formulaVariables.forEach((variable) => {
-      const value = pricingData[variable.name]
+      const value = pricingData[variable.name as keyof PricingData]
       if (value !== undefined && variable.multiplier) {
-        const numValue = typeof value === 'number' ? value : parseInt(value)
+        const numValue = typeof value === 'number' ? value : parseInt(String(value))
 
         if (variable.name === 'cantidad') {
           total = basePrice * numValue
@@ -61,7 +104,7 @@ async function calculatePrice(
       return basePrice
     }
 
-    return pricingData.items.reduce((total: number, item: any) => {
+    return pricingData.items.reduce((total: number, item: PricingItem) => {
       return total + (item.price * item.quantity)
     }, 0)
   }
@@ -70,7 +113,7 @@ async function calculatePrice(
 }
 
 // Función para aplicar descuento de cupón
-function applyDiscount(basePrice: number, coupon: { discountType: string; discountAmount: any } | null): number {
+function applyDiscount(basePrice: number, coupon: Coupon | null): number {
   if (!coupon) {
     return basePrice
   }
@@ -210,6 +253,31 @@ export async function POST(request: Request) {
         coupon: true,
       },
     })
+
+    // Send email notification to admin (non-blocking)
+    try {
+      const reservationDate = new Date(validatedData.date)
+      const formattedAddress = `${address.address}, ${address.neighborhood}, ${address.city}, ${address.state}`
+
+      await sendAdminReservationNotification({
+        reservationId: reservation.id,
+        clientName: `${reservation.user.name || ''} ${reservation.user.lastname || ''}`.trim(),
+        clientEmail: reservation.user.email || 'No especificado',
+        clientPhone: reservation.user.phone,
+        serviceName: reservation.service.name,
+        serviceType: reservation.type,
+        date: format(reservationDate, "d 'de' MMMM 'de' yyyy", { locale: es }),
+        time: format(reservationDate, 'h:mm a', { locale: es }),
+        address: formattedAddress,
+        packageName: reservation.package?.description,
+        pricingOptionName: reservation.pricingOption?.name,
+        finalPrice: Number(reservation.finalPrice),
+        pricingData: reservation.pricingData as PricingData | undefined,
+      })
+    } catch (emailError) {
+      // Log error but don't fail the reservation
+      console.error('Error enviando notificación por email al admin:', emailError)
+    }
 
     return NextResponse.json(reservation, { status: 201 })
   } catch (error) {
