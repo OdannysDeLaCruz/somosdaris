@@ -4,7 +4,7 @@ import { getAccessTokenFromHeaders } from '@/lib/auth-cookies'
 import { getUserFromAccessToken } from '@/lib/session'
 import { z } from 'zod'
 import { sendAdminReservationNotification } from '@/lib/email'
-import { format } from 'date-fns'
+import { formatInTimeZone } from 'date-fns-tz'
 import { es } from 'date-fns/locale'
 import { Decimal } from '@prisma/client/runtime/library'
 
@@ -258,6 +258,7 @@ export async function POST(request: Request) {
     try {
       const reservationDate = new Date(validatedData.date)
       const formattedAddress = `${address.address}, ${address.neighborhood}, ${address.city}, ${address.state}`
+      const timeZone = 'America/Bogota'
 
       await sendAdminReservationNotification({
         reservationId: reservation.id,
@@ -266,8 +267,8 @@ export async function POST(request: Request) {
         clientPhone: reservation.user.phone,
         serviceName: reservation.service.name,
         serviceType: reservation.type,
-        date: format(reservationDate, "d 'de' MMMM 'de' yyyy", { locale: es }),
-        time: format(reservationDate, 'h:mm a', { locale: es }),
+        date: formatInTimeZone(reservationDate, timeZone, "d 'de' MMMM 'de' yyyy", { locale: es }),
+        time: formatInTimeZone(reservationDate, timeZone, 'h:mm a', { locale: es }),
         address: formattedAddress,
         packageName: reservation.package?.description,
         pricingOptionName: reservation.pricingOption?.name,
