@@ -2,6 +2,18 @@ import { notFound } from 'next/navigation'
 import { prisma } from '@/lib/prisma'
 import ReservationDetail from '@/components/dashboard/ReservationDetail'
 
+interface PricingItem {
+  name: string
+  quantity: number
+  price: number
+}
+
+interface PricingData {
+  cantidad?: number
+  altura?: number
+  items?: PricingItem[]
+}
+
 async function getReservation(id: string) {
   const reservation = await prisma.reservation.findUnique({
     where: { id },
@@ -31,6 +43,7 @@ async function getReservation(id: string) {
   return {
     ...reservation,
     finalPrice: Number(reservation.finalPrice),
+    pricingData: reservation.pricingData as PricingData | undefined,
     package: reservation.package ? {
       ...reservation.package,
       price: Number(reservation.package.price),
