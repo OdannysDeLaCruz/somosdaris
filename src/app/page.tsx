@@ -20,7 +20,7 @@ export default async function LandingPage() {
     <div className="min-h-screen bg-white dark:bg-zinc-950">
       {/* Header */}
       <header className="fixed top-0 left-0 right-0 z-50 bg-white/95 dark:bg-zinc-950/95 backdrop-blur-sm border-b border-zinc-200 dark:border-zinc-800">
-        <nav className="max-w-7xl px-8 md:px-12">
+        <nav className="max-w-7xl px-8 xl:px-0 mx-auto">
           <div className="flex items-center justify-between h-16 md:h-20">
             {/* Logo */}
             <Link href="/" className="flex items-center">
