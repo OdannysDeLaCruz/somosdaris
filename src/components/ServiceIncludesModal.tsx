@@ -10,7 +10,6 @@ interface ServiceIncludesModalProps {
 
 export function ServiceIncludesModal({ isOpen, onClose }: ServiceIncludesModalProps) {
   const included = [
-    'Productos de limpieza',
     'Limpieza de habitaciones',
     'Limpieza de salas y zonas comunes',
     'Limpieza y desinfección de baños y cocinas',
@@ -18,8 +17,9 @@ export function ServiceIncludesModal({ isOpen, onClose }: ServiceIncludesModalPr
     'Limpieza de ventanas',
     'Lavado de ropa con lavadora',
   ]
-
+  
   const notIncluded = [
+    // 'Productos de limpieza',
     'Cuidado de niños',
     'Entregas de dinero, mandados fuera de la casa',
     'Carga de pesos superiores a 20 kilos',
