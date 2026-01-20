@@ -126,6 +126,7 @@ export default function PricingManagementContent({ service: initialService }: Pr
     PACKAGE_BASED: 'Por Paquetes',
     FORMULA_BASED: 'Por Fórmula',
     ITEM_BASED: 'Por Artículos',
+    QUOTE_BASED: 'Por Cotización',
   }
 
   return (
