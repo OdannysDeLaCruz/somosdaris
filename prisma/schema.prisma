@@ -176,6 +176,7 @@ enum PricingModel {
   PACKAGE_BASED
   FORMULA_BASED
   ITEM_BASED
+  QUOTE_BASED
 }
 
 model Session {

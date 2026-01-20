@@ -5,6 +5,7 @@ import { useRouter, useParams } from 'next/navigation'
 import Link from 'next/link'
 import { ArrowLeft } from 'lucide-react'
 import { PricingSelector, PricingSelection } from '@/components/PricingSelector'
+import QuoteBasedSelector from '@/components/pricing/QuoteBasedSelector'
 import { DateTimePicker } from '@/components/DateTimePicker'
 import { AddressForm, AddressFormData } from '@/components/AddressForm'
 import { FixedFooter } from '@/components/FixedFooter'
@@ -21,6 +22,7 @@ interface Service {
   id: string
   name: string
   description: string
+  pricingModel: 'PACKAGE_BASED' | 'FORMULA_BASED' | 'ITEM_BASED' | 'QUOTE_BASED'
 }
 
 interface Address {
@@ -273,6 +275,27 @@ export default function ReservarPage() {
             loading="eager"
             style={{ width: 'auto', height: 'auto' }}
           />
+        </div>
+      </div>
+    )
+  }
+
+  // Special flow for QUOTE_BASED services (like Lavado en Seco)
+  if (service.pricingModel === 'QUOTE_BASED') {
+    return (
+      <div className="min-h-screen bg-zinc-50 dark:bg-black pt-8 pb-8">
+        <div className="max-w-4xl mx-auto px-4 sm:px-6 lg:px-8 py-4">
+          <Link
+            href="/app"
+            className="text-xl font-bold inline-flex items-center gap-2 text-black transition-colors mb-6"
+          >
+            <ArrowLeft className="w-9 h-9 mr-2 bg-blue-100 p-2 rounded-full" />
+            {service.name}
+          </Link>
+
+          <div className="mt-4">
+            <QuoteBasedSelector />
+          </div>
         </div>
       </div>
     )

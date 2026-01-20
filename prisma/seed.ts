@@ -192,18 +192,20 @@ async function main() {
   console.log('✅ Variables de fórmula para Tanques creadas')
 
   // ========================================
-  // SERVICIO 3: LAVADO EN SECO
+  // SERVICIO 3: LAVADO EN SECO (QUOTE_BASED)
   // ========================================
 
   await prisma.service.create({
     data: {
       name: 'Lavado en Seco',
-      description: 'Limpieza de sofas, sillas, colchones con lavado en seco.',
+      description: 'Limpieza de sofás, sillas, colchones y más con lavado en seco profesional.',
       image: '/images/services/lavado-seco.png',
-      comingSoon: true,
-      pricingModel: 'PACKAGE_BASED',
+      comingSoon: false,
+      pricingModel: 'QUOTE_BASED',
     },
   })
+
+  console.log('✅ Servicio de Lavado en Seco creado')
 
   // Crear cupón de primera reserva (10% de descuento automático)
   const firstReservationCoupon = await prisma.coupon.create({
@@ -224,9 +226,10 @@ async function main() {
   console.log('\n📊 Resumen:')
   console.log('   - 3 Roles creados (admin, ally, customer)')
   console.log('   - 1 Usuario admin creado')
-  console.log('   - 2 Servicios creados:')
+  console.log('   - 3 Servicios creados:')
   console.log('     • Limpieza (PACKAGE_BASED) - 3 opciones de precio')
   console.log('     • Limpieza de Tanques (FORMULA_BASED) - 2 variables de fórmula')
+  console.log('     • Lavado en Seco (QUOTE_BASED) - cotización por WhatsApp')
   console.log('   - 3 Paquetes legacy creados')
   console.log('   - 1 Cupón de primera reserva creado')
   console.log('\n💡 Puedes iniciar sesión con:')

@@ -4,12 +4,13 @@ import { useState, useEffect } from 'react'
 import PackageBasedSelector from './pricing/PackageBasedSelector'
 import FormulaBasedSelector from './pricing/FormulaBasedSelector'
 import ItemBasedSelector from './pricing/ItemBasedSelector'
+import QuoteBasedSelector from './pricing/QuoteBasedSelector'
 import { FormulaVariable, PricingOption } from '@/types'
 
 interface Service {
   id: string
   name: string
-  pricingModel: 'PACKAGE_BASED' | 'FORMULA_BASED' | 'ITEM_BASED'
+  pricingModel: 'PACKAGE_BASED' | 'FORMULA_BASED' | 'ITEM_BASED' | 'QUOTE_BASED'
 }
 
 interface PricingSelectorProps {
@@ -84,6 +85,11 @@ export function PricingSelector({ serviceId, onSelect, selectedId }: PricingSele
         </p>
       </div>
     )
+  }
+
+  // QUOTE_BASED doesn't need pricing options - it goes directly to WhatsApp
+  if (service.pricingModel === 'QUOTE_BASED') {
+    return <QuoteBasedSelector />
   }
 
   if (pricingOptions.length === 0) {
