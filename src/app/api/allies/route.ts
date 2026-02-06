@@ -9,7 +9,7 @@ const allySchema = z.object({
   phone: z.string().min(1, 'El teléfono es requerido'),
   email: z.string().email('Email inválido').optional().or(z.literal('')),
   identificationNumber: z.string().optional().or(z.literal('')),
-  photo: z.string().url('URL de foto inválida').optional().or(z.literal('')),
+  photo: z.string().url('La foto es obligatoria'),
 })
 
 export async function GET() {
@@ -82,7 +82,7 @@ export async function POST(request: Request) {
         phone: normalizedPhone,
         email: validatedData.email || null,
         identificationNumber: validatedData.identificationNumber || null,
-        photo: validatedData.photo || null,
+        photo: validatedData.photo,
         roleId: allyRole.id,
       },
       include: {

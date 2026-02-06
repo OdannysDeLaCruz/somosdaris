@@ -5,7 +5,9 @@ import { format } from 'date-fns'
 import { es } from 'date-fns/locale'
 import { Mail, Phone, Calendar, Copy, Check } from 'lucide-react'
 import Image from 'next/image'
+import Link from 'next/link'
 import AddAllyModal from './AddAllyModal'
+import { ROUTES } from '@/lib/routes'
 import { User, Role } from '@prisma/client'
 
 type AllyWithDetails = User & {
@@ -179,9 +181,12 @@ export default function AlliesContent({ initialAllies }: AlliesContentProps) {
 
                 {/* Actions */}
                 <div className="mt-4 flex gap-2">
-                  <button className="flex-1 px-3 py-2 text-sm bg-blue-600 text-white rounded-lg hover:bg-blue-700 transition-colors">
+                  <Link
+                    href={ROUTES.DASHBOARD_ALIADO_DETAIL(ally.id)}
+                    className="flex-1 px-3 py-2 text-sm text-center bg-blue-600 text-white rounded-lg hover:bg-blue-700 transition-colors"
+                  >
                     Ver Detalles
-                  </button>
+                  </Link>
                   <button
                     onClick={() => handleCopyCVU(ally.id)}
                     className="inline-flex items-center gap-1 px-3 py-2 text-sm border border-gray-300 text-gray-700 rounded-lg hover:bg-gray-50 transition-colors"

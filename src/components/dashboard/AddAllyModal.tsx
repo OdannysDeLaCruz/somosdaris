@@ -52,8 +52,14 @@ export default function AddAllyModal({ isOpen, onClose, onSuccess }: AddAllyModa
     setIsSubmitting(true)
     setErrors({})
 
+    if (!photoFile) {
+      setErrors({ photo: 'La foto del aliado es obligatoria' })
+      setIsSubmitting(false)
+      return
+    }
+
     try {
-      // Upload photo first if selected
+      // Upload photo
       let photoUrl = ''
       if (photoFile) {
         const uploadFormData = new FormData()
@@ -178,7 +184,7 @@ export default function AddAllyModal({ isOpen, onClose, onSuccess }: AddAllyModa
                 <Camera size={14} className="text-white" />
               </div>
             </button>
-            <p className="text-xs text-gray-500">Foto del aliado (opcional)</p>
+            <p className="text-xs text-gray-500">Foto del aliado <span className="text-red-500">*</span></p>
             <input
               ref={fileInputRef}
               type="file"

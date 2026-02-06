@@ -30,4 +30,5 @@ export const ROUTES = {
   DASHBOARD_SERVICIO_PRICING: (id: string) => `/app/dashboard/servicios/${id}/pricing`,
   DASHBOARD_CLIENTES: '/app/dashboard/clientes',
   DASHBOARD_ALIADOS: '/app/dashboard/aliados',
+  DASHBOARD_ALIADO_DETAIL: (id: string) => `/app/dashboard/aliados/${id}`,
 } as const
