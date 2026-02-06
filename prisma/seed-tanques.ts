@@ -24,7 +24,7 @@ async function main() {
       serviceId: service.id,
       name: 'Limpieza de Tanque',
       description: 'Precio base por tanque, ajustable según cantidad y altura',
-      basePrice: 50000,
+      basePrice: 99000,
       displayOrder: 1,
       isActive: true,
       metadata: {},
