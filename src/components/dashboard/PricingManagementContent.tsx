@@ -24,7 +24,7 @@ export default function PricingManagementContent({ service: initialService }: Pr
   const [isEditOptionModalOpen, setIsEditOptionModalOpen] = useState(false)
   const [isAddVariableModalOpen, setIsAddVariableModalOpen] = useState(false)
   const [selectedOption, setSelectedOption] = useState<PricingOption | null>(null)
-  const [selectedVariable, setSelectedVariable] = useState<FormulaVariable | null>(null)
+  // const [selectedVariable, setSelectedVariable] = useState<FormulaVariable | null>(null)
   const [updatingModel, setUpdatingModel] = useState(false)
 
   const handleModelChange = async (newModel: PricingModel) => {
