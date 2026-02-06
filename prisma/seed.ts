@@ -62,7 +62,7 @@ async function main() {
     data: {
       name: 'Limpieza del Hogar',
       description: 'Servicio de limpieza profesional para tu hogar u oficina.',
-      image: '/images/services/limpieza.gif',
+      image: '/images/services/limpieza.png',
       comingSoon: false,
       pricingModel: 'PACKAGE_BASED',
     },
@@ -139,7 +139,7 @@ async function main() {
     data: {
       name: 'Limpieza de Tanques Elevados',
       description: 'Limpieza y desinfección profesional de tanques de agua elevados.',
-      image: '/images/services/tanques.webp',
+      image: '/images/services/tanque.png',
       comingSoon: false,
       pricingModel: 'FORMULA_BASED',
     },
