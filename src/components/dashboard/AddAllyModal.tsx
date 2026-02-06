@@ -1,7 +1,8 @@
 'use client'
 
-import { useState } from 'react'
-import { X } from 'lucide-react'
+import { useState, useRef } from 'react'
+import { X, Camera } from 'lucide-react'
+import Image from 'next/image'
 
 interface AddAllyModalProps {
   isOpen: boolean
@@ -15,9 +16,36 @@ export default function AddAllyModal({ isOpen, onClose, onSuccess }: AddAllyModa
     lastname: '',
     phone: '',
     email: '',
+    identificationNumber: '',
   })
+  const [photoFile, setPhotoFile] = useState<File | null>(null)
+  const [photoPreview, setPhotoPreview] = useState<string | null>(null)
   const [errors, setErrors] = useState<Record<string, string>>({})
   const [isSubmitting, setIsSubmitting] = useState(false)
+  const fileInputRef = useRef<HTMLInputElement>(null)
+
+  const handlePhotoChange = (e: React.ChangeEvent<HTMLInputElement>) => {
+    const file = e.target.files?.[0]
+    if (!file) return
+
+    if (!['image/jpeg', 'image/png', 'image/webp'].includes(file.type)) {
+      setErrors((prev) => ({ ...prev, photo: 'Use formato JPG, PNG o WebP' }))
+      return
+    }
+
+    if (file.size > 5 * 1024 * 1024) {
+      setErrors((prev) => ({ ...prev, photo: 'La imagen no puede superar 5MB' }))
+      return
+    }
+
+    setPhotoFile(file)
+    setPhotoPreview(URL.createObjectURL(file))
+    setErrors((prev) => {
+      const next = { ...prev }
+      delete next.photo
+      return next
+    })
+  }
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault()
@@ -25,12 +53,34 @@ export default function AddAllyModal({ isOpen, onClose, onSuccess }: AddAllyModa
     setErrors({})
 
     try {
+      // Upload photo first if selected
+      let photoUrl = ''
+      if (photoFile) {
+        const uploadFormData = new FormData()
+        uploadFormData.append('file', photoFile)
+
+        const uploadResponse = await fetch('/api/upload', {
+          method: 'POST',
+          body: uploadFormData,
+        })
+
+        if (!uploadResponse.ok) {
+          const uploadError = await uploadResponse.json()
+          setErrors({ photo: uploadError.error || 'Error al subir la foto' })
+          setIsSubmitting(false)
+          return
+        }
+
+        const { url } = await uploadResponse.json()
+        photoUrl = url
+      }
+
       const response = await fetch('/api/allies', {
         method: 'POST',
         headers: {
           'Content-Type': 'application/json',
         },
-        body: JSON.stringify(formData),
+        body: JSON.stringify({ ...formData, photo: photoUrl }),
       })
 
       const data = await response.json()
@@ -50,8 +100,10 @@ export default function AddAllyModal({ isOpen, onClose, onSuccess }: AddAllyModa
         return
       }
 
-      // Success
-      setFormData({ name: '', lastname: '', phone: '', email: '' })
+      // Success - reset form
+      setFormData({ name: '', lastname: '', phone: '', email: '', identificationNumber: '' })
+      setPhotoFile(null)
+      setPhotoPreview(null)
       onSuccess()
       onClose()
     } catch (error) {
@@ -100,6 +152,44 @@ export default function AddAllyModal({ isOpen, onClose, onSuccess }: AddAllyModa
               {errors.general}
             </div>
           )}
+
+          {/* Photo Upload */}
+          <div className="flex flex-col items-center gap-2">
+            <button
+              type="button"
+              onClick={() => fileInputRef.current?.click()}
+              disabled={isSubmitting}
+              className="relative group"
+            >
+              {photoPreview ? (
+                <Image
+                  src={photoPreview}
+                  alt="Preview"
+                  width={96}
+                  height={96}
+                  className="w-24 h-24 rounded-full object-cover border-2 border-gray-200 group-hover:border-blue-400 transition-colors"
+                />
+              ) : (
+                <div className="w-24 h-24 rounded-full bg-gray-100 border-2 border-dashed border-gray-300 flex items-center justify-center group-hover:border-blue-400 group-hover:bg-blue-50 transition-colors">
+                  <Camera size={28} className="text-gray-400 group-hover:text-blue-500 transition-colors" />
+                </div>
+              )}
+              <div className="absolute bottom-0 right-0 w-7 h-7 bg-blue-600 rounded-full flex items-center justify-center border-2 border-white shadow-sm">
+                <Camera size={14} className="text-white" />
+              </div>
+            </button>
+            <p className="text-xs text-gray-500">Foto del aliado (opcional)</p>
+            <input
+              ref={fileInputRef}
+              type="file"
+              accept="image/jpeg,image/png,image/webp"
+              onChange={handlePhotoChange}
+              className="hidden"
+            />
+            {errors.photo && (
+              <p className="text-sm text-red-600">{errors.photo}</p>
+            )}
+          </div>
 
           {/* Name */}
           <div>
@@ -162,6 +252,28 @@ export default function AddAllyModal({ isOpen, onClose, onSuccess }: AddAllyModa
             />
             {errors.phone && (
               <p className="mt-1 text-sm text-red-600">{errors.phone}</p>
+            )}
+          </div>
+
+          {/* Identification Number */}
+          <div>
+            <label htmlFor="identificationNumber" className="block text-sm font-medium text-gray-700 mb-1">
+              Número de Identificación (opcional)
+            </label>
+            <input
+              type="text"
+              id="identificationNumber"
+              name="identificationNumber"
+              value={formData.identificationNumber}
+              onChange={handleChange}
+              placeholder="1234567890"
+              className={`w-full px-4 py-2 border rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent ${
+                errors.identificationNumber ? 'border-red-500' : 'border-gray-300'
+              }`}
+              disabled={isSubmitting}
+            />
+            {errors.identificationNumber && (
+              <p className="mt-1 text-sm text-red-600">{errors.identificationNumber}</p>
             )}
           </div>
 

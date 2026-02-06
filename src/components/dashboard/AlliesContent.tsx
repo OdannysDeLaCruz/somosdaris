@@ -3,7 +3,8 @@
 import { useState } from 'react'
 import { format } from 'date-fns'
 import { es } from 'date-fns/locale'
-import { Mail, Phone, Calendar } from 'lucide-react'
+import { Mail, Phone, Calendar, Copy, Check } from 'lucide-react'
+import Image from 'next/image'
 import AddAllyModal from './AddAllyModal'
 import { User, Role } from '@prisma/client'
 
@@ -21,6 +22,27 @@ interface AlliesContentProps {
 export default function AlliesContent({ initialAllies }: AlliesContentProps) {
   const [allies, setAllies] = useState<AllyWithDetails[]>(initialAllies)
   const [isModalOpen, setIsModalOpen] = useState(false)
+  const [copiedAllyId, setCopiedAllyId] = useState<string | null>(null)
+
+  const handleCopyCVU = async (allyId: string) => {
+    try {
+      const response = await fetch('/api/carnet', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ type: 'cvu', allyId }),
+      })
+
+      if (!response.ok) throw new Error('Error al generar enlace')
+
+      const { url } = await response.json()
+      await navigator.clipboard.writeText(url)
+      setCopiedAllyId(allyId)
+      setTimeout(() => setCopiedAllyId(null), 2000)
+    } catch (error) {
+      console.error('Error copying CVU link:', error)
+      alert('Error al copiar el enlace del carnet')
+    }
+  }
 
   const handleSuccess = async () => {
     // Reload allies data
@@ -93,11 +115,21 @@ export default function AlliesContent({ initialAllies }: AlliesContentProps) {
                 {/* Header */}
                 <div className="flex items-start justify-between mb-4">
                   <div className="flex items-center gap-3">
-                    <div className="w-12 h-12 rounded-full bg-purple-100 flex items-center justify-center">
-                      <span className="text-purple-600 font-semibold text-lg">
-                        {(ally.name || ally.phone).charAt(0).toUpperCase()}
-                      </span>
-                    </div>
+                    {ally.photo ? (
+                      <Image
+                        src={ally.photo}
+                        alt={ally.name || 'Aliado'}
+                        width={48}
+                        height={48}
+                        className="w-12 h-12 rounded-full object-cover"
+                      />
+                    ) : (
+                      <div className="w-12 h-12 rounded-full bg-purple-100 flex items-center justify-center">
+                        <span className="text-purple-600 font-semibold text-lg">
+                          {(ally.name || ally.phone).charAt(0).toUpperCase()}
+                        </span>
+                      </div>
+                    )}
                     <div>
                       <h3 className="font-semibold text-gray-900">
                         {ally.name || 'Sin nombre'}{' '}
@@ -150,8 +182,22 @@ export default function AlliesContent({ initialAllies }: AlliesContentProps) {
                   <button className="flex-1 px-3 py-2 text-sm bg-blue-600 text-white rounded-lg hover:bg-blue-700 transition-colors">
                     Ver Detalles
                   </button>
-                  <button className="px-3 py-2 text-sm border border-gray-300 text-gray-700 rounded-lg hover:bg-gray-50 transition-colors">
-                    Editar
+                  <button
+                    onClick={() => handleCopyCVU(ally.id)}
+                    className="inline-flex items-center gap-1 px-3 py-2 text-sm border border-gray-300 text-gray-700 rounded-lg hover:bg-gray-50 transition-colors"
+                    title="Copiar enlace de carnet permanente"
+                  >
+                    {copiedAllyId === ally.id ? (
+                      <>
+                        <Check size={14} />
+                        Copiado
+                      </>
+                    ) : (
+                      <>
+                        <Copy size={14} />
+                        CVU
+                      </>
+                    )}
                   </button>
                 </div>
               </div>

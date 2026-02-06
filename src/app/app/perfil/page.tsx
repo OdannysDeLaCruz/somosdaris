@@ -1,16 +1,43 @@
 'use client'
 
-import React from "react";
+import React, { useState } from "react";
 import { Card, CardContent, CardHeader, CardTitle, CardDescription } from "@/components/ui/card";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
-import { User, Mail, Phone, CreditCard } from "lucide-react";
+import { User, Mail, Phone, CreditCard, IdCard, Copy, Check } from "lucide-react";
 import { useAuth } from '@/components/AuthProvider'
 
 import { AuthRedirect } from "@/components/AuthRedirect";
 
 export default function PerfilPage() {
   const { user } = useAuth()
+  const [carnetCopied, setCarnetCopied] = useState(false)
+  const [carnetLoading, setCarnetLoading] = useState(false)
+
+  const isAlly = user?.role?.name === 'ally'
+
+  const handleCopyCarnet = async () => {
+    if (!user) return
+    setCarnetLoading(true)
+    try {
+      const response = await fetch('/api/carnet', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ type: 'cvu', allyId: user.id }),
+      })
+
+      if (!response.ok) throw new Error('Error al generar enlace')
+
+      const { url } = await response.json()
+      await navigator.clipboard.writeText(url)
+      setCarnetCopied(true)
+      setTimeout(() => setCarnetCopied(false), 2000)
+    } catch (error) {
+      console.error('Error copying carnet link:', error)
+    } finally {
+      setCarnetLoading(false)
+    }
+  }
 
   return (
     <AuthRedirect>
@@ -68,6 +95,33 @@ export default function PerfilPage() {
               </Label>
               <Input id="email" type="email" value={user?.email || '------@------'} readOnly className="cursor-default focus-visible:ring-0 border border-gray-500 px-3 py-5 text-base" />
             </div>
+
+            {/* Mi Carnet Virtual (solo para aliados) */}
+            {isAlly && (
+              <div className="pt-4 border-t border-muted">
+                <Label className="flex items-center gap-2 text-gray-600 text-base font-normal mb-3">
+                  <IdCard className="w-4 h-4 text-muted-foreground" />
+                  Mi Carnet Virtual
+                </Label>
+                <button
+                  onClick={handleCopyCarnet}
+                  disabled={carnetLoading}
+                  className="w-full inline-flex items-center justify-center gap-2 px-4 py-3 bg-blue-600 text-white text-sm font-medium rounded-lg hover:bg-blue-700 transition-colors disabled:opacity-50"
+                >
+                  {carnetCopied ? (
+                    <>
+                      <Check className="w-4 h-4" />
+                      Enlace copiado
+                    </>
+                  ) : (
+                    <>
+                      <Copy className="w-4 h-4" />
+                      {carnetLoading ? 'Generando...' : 'Copiar enlace de mi carnet'}
+                    </>
+                  )}
+                </button>
+              </div>
+            )}
 
             <div className="pt-4 border-t border-muted">
               <p className="text-xs text-center text-muted-foreground italic">

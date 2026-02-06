@@ -149,6 +149,8 @@ export default function HistorialPage() {
     switch (status) {
       case 'pending':
         return 'bg-yellow-100 text-yellow-800 dark:bg-yellow-900/30 dark:text-yellow-400'
+      case 'in_progress':
+        return 'bg-blue-100 text-blue-800 dark:bg-blue-900/30 dark:text-blue-400'
       case 'confirmed':
         return 'bg-blue-100 text-blue-800 dark:bg-blue-900/30 dark:text-blue-400'
       case 'completed':
@@ -164,6 +166,8 @@ export default function HistorialPage() {
     switch (status) {
       case 'pending':
         return 'Pendiente'
+      case 'in_progress':
+        return 'En Progreso'
       case 'confirmed':
         return 'Confirmada'
       case 'completed':

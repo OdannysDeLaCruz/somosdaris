@@ -3,7 +3,7 @@ import { prisma } from '@/lib/prisma'
 import { z } from 'zod'
 
 const updateReservationSchema = z.object({
-  status: z.enum(['pending', 'completed', 'cancelled']).optional(),
+  status: z.enum(['pending', 'in_progress', 'completed', 'cancelled']).optional(),
   allyId: z.string().nullable().optional(),
 })
 

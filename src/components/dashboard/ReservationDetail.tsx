@@ -3,12 +3,12 @@
 import { useState } from 'react'
 import { format } from 'date-fns'
 import { es } from 'date-fns/locale'
-import { ArrowLeft } from 'lucide-react'
+import { ArrowLeft, Copy, Check } from 'lucide-react'
 import Link from 'next/link'
 import { Decimal } from '@prisma/client/runtime/library'
 import { ROUTES } from '@/lib/routes'
 
-type ReservationStatus = 'pending' | 'completed' | 'cancelled'
+type ReservationStatus = 'pending' | 'in_progress' | 'completed' | 'cancelled'
 type ReservationType = 'home' | 'office'
 
 interface PricingItem {
@@ -92,6 +92,8 @@ interface ReservationDetailProps {
 export default function ReservationDetail({ reservation: initialReservation, allies }: ReservationDetailProps) {
   const [reservation, setReservation] = useState(initialReservation)
   const [isUpdating, setIsUpdating] = useState(false)
+  const [carnetCopied, setCarnetCopied] = useState(false)
+  const [carnetLoading, setCarnetLoading] = useState(false)
 
   const handleStatusChange = async (e: React.ChangeEvent<HTMLSelectElement>) => {
     const newStatus = e.target.value as ReservationStatus
@@ -151,6 +153,29 @@ export default function ReservationDetail({ reservation: initialReservation, all
     }
   }
 
+  const handleCopyCarnetLink = async () => {
+    setCarnetLoading(true)
+    try {
+      const response = await fetch('/api/carnet', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ type: 'cvt', reservationId: reservation.id }),
+      })
+
+      if (!response.ok) throw new Error('Error al generar enlace')
+
+      const { url } = await response.json()
+      await navigator.clipboard.writeText(url)
+      setCarnetCopied(true)
+      setTimeout(() => setCarnetCopied(false), 2000)
+    } catch (error) {
+      console.error('Error copying carnet link:', error)
+      alert('Error al copiar el enlace del carnet')
+    } finally {
+      setCarnetLoading(false)
+    }
+  }
+
   const getTypeLabel = (type: ReservationType) => {
     return type === 'home' ? 'Casa' : 'Oficina'
   }
@@ -201,6 +226,7 @@ export default function ReservationDetail({ reservation: initialReservation, all
             className="w-full px-4 py-2.5 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent disabled:opacity-50 disabled:cursor-not-allowed bg-white text-gray-900 font-medium"
           >
             <option value="pending">Pendiente</option>
+            <option value="in_progress">En Progreso</option>
             <option value="completed">Completada</option>
             <option value="cancelled">Cancelada</option>
           </select>
@@ -231,6 +257,32 @@ export default function ReservationDetail({ reservation: initialReservation, all
             </p>
           )}
         </div>
+
+        {/* Carnet Virtual Temporal */}
+        {reservation.ally && (reservation.status === 'pending' || reservation.status === 'in_progress') && (
+          <div className="p-4 hover:bg-gray-50 transition-colors">
+            <label className="block text-sm font-medium text-gray-500 mb-2">
+              Carnet Virtual Temporal
+            </label>
+            <button
+              onClick={handleCopyCarnetLink}
+              disabled={carnetLoading}
+              className="inline-flex items-center gap-2 px-4 py-2 bg-blue-600 text-white text-sm rounded-lg hover:bg-blue-700 transition-colors disabled:opacity-50"
+            >
+              {carnetCopied ? (
+                <>
+                  <Check size={16} />
+                  Enlace copiado
+                </>
+              ) : (
+                <>
+                  <Copy size={16} />
+                  {carnetLoading ? 'Generando...' : 'Copiar enlace de carnet'}
+                </>
+              )}
+            </button>
+          </div>
+        )}
 
         <div className="p-4 hover:bg-gray-50 transition-colors">
           <label className="block text-sm font-medium text-gray-500 mb-1">

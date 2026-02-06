@@ -19,6 +19,9 @@ export const ROUTES = {
   PERFIL: '/app/perfil',
   CONFIGURACION: '/app/configuracion',
 
+  // Carnet (public)
+  CARNET: (token: string) => `/carnet/${token}`,
+
   // Dashboard
   DASHBOARD: '/app/dashboard',
   DASHBOARD_RESERVAS: '/app/dashboard/reservas',

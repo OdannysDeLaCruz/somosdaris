@@ -26,9 +26,10 @@ model User {
   id        String   @id @default(cuid())
   name      String?
   lastname  String?
-  phone     String   @unique
-  photo     String?
-  email     String?
+  phone                String   @unique
+  photo                String?
+  email                String?
+  identificationNumber String?
   roleId    String
   createdAt DateTime @default(now())
   updatedAt DateTime @updatedAt
@@ -163,6 +164,7 @@ enum ReservationType {
 
 enum ReservationStatus {
   pending
+  in_progress
   cancelled
   completed
 }
