@@ -227,7 +227,7 @@ export default async function LandingPage() {
                 </li>
                 <li className="flex items-center gap-2 text-black font-bold">
                   <CheckCircle className="w-5 h-5 text-blue-600 dark:text-blue-400 flex-shrink-0" />
-                  <span className="text-md">Productos y equipos incluidos</span>
+                  <span className="text-md">Reserva para el día y la hora que quieras</span>
                 </li>
               </ul>
 
